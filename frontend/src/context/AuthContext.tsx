@@ -14,6 +14,7 @@ type User = {
     role: Role;
     title: string;
     personal_balance: number;
+    profile_picture_url: string;
 };
 
 type AuthContextType = {
@@ -29,14 +30,16 @@ type AuthContextType = {
         kra_pin: string;
         phone_number: string;
         physical_address: string;
+        profile_picture_data?: string;
     }) => Promise<void>;
     logout: () => void;
+    updateProfilePicture: (data: string | File) => Promise<void>;
     loading: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = 'http://localhost:5555/api/auth';
+const API_URL = 'http://localhost:5555/api';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -53,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password: string) => {
         try {
-            const response = await axios.post(`${API_URL}/login`, { email, password });
+            const response = await axios.post(`${API_URL}/auth/login`, { email, password });
             const { token, user } = response.data;
             setToken(token);
             setUser(user);
@@ -64,20 +67,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const register = async (details: {
-        username: string;
-        email: string;
-        password: string;
-        full_name: string;
-        national_id: string;
-        kra_pin: string;
-        phone_number: string;
-        physical_address: string;
-    }) => {
+    const register = async (details: any) => {
         try {
-            await axios.post(`${API_URL}/register`, details);
+            const response = await axios.post(`${API_URL}/auth/register`, details);
+            // If registration includes immediate capture, we might want to handle it.
+            // But for now, just register.
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Registration failed');
+        }
+    };
+
+    const updateProfilePicture = async (data: string | File) => {
+        if (!token) return;
+        try {
+            let response;
+            if (typeof data === 'string') {
+                response = await axios.post(`${API_URL}/users/profile-picture`, { profile_picture_data: data }, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            } else {
+                const formData = new FormData();
+                formData.append('profile_picture', data);
+                response = await axios.post(`${API_URL}/users/profile-picture-upload`, formData, {
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
+            const { profile_picture_url } = response.data;
+            if (user) {
+                const updatedUser = { ...user, profile_picture_url };
+                setUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Update failed');
         }
     };
 
@@ -89,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, token, login, register, logout, updateProfilePicture, loading }}>
             {children}
         </AuthContext.Provider>
     );

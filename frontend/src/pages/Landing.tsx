@@ -1,4 +1,4 @@
-import Navbar from "../components/Navbar";
+import PublicNavbar from "../components/PublicNavbar";
 import Logo from "../components/Logo";
 import Search from "../components/Search";
 import Footer from "../components/Footer";
@@ -7,18 +7,10 @@ import { Link } from "react-router-dom";
 function Landing() {
     return (
         <div className="min-h-screen flex flex-col bg-[#F8F9FA] dark:bg-[#0F1720]">
-            {/* Header / Nav */}
-            <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="w-full max-w-[280px] sm:max-w-[320px]">
-                    <Logo />
-                </div>
-                <div className="flex-1 flex justify-center md:justify-end overflow-x-auto w-full pb-2 md:pb-0">
-                    <Navbar />
-                </div>
-            </header>
+            <PublicNavbar />
 
             {/* Hero Section */}
-            <main className="flex-grow">
+            <main className="flex-grow pt-20">
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div className="space-y-8 text-center lg:text-left">
                         <div className="space-y-4">

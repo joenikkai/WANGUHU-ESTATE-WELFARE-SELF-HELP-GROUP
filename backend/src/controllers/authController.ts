@@ -52,10 +52,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const person_id = personResult.rows[0].id;
 
     // 4. Create User linked to Person
+    const profile_picture_url = `https://api.dicebear.com/9.x/avataaars/svg?seed=${username}`;
     const userResult = await client.query(
-      `INSERT INTO users (person_id, username, password_hash, title) 
-       VALUES ($1, $2, $3, $4) RETURNING id, username, role, title`,
-      [person_id, username, password_hash, 'Community Member']
+      `INSERT INTO users (person_id, username, password_hash, title, profile_picture_url) 
+       VALUES ($1, $2, $3, $4, $5) RETURNING id, username, role, title, profile_picture_url`,
+      [person_id, username, password_hash, 'Community Member', profile_picture_url]
     );
 
     await client.query('COMMIT');
@@ -74,7 +75,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body;
+  const { email, password } = req.body; // 'email' field now serves as Identifier (email or username)
 
   try {
     // Find user by joining with persons table
@@ -119,7 +120,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         phone_number: user.phone_number,
         role: user.role,
         title: user.title,
-        personal_balance: user.personal_balance
+        personal_balance: user.personal_balance,
+        profile_picture_url: user.profile_picture_url
       }
     });
   } catch (err) {
