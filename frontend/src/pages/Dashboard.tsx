@@ -184,39 +184,33 @@ function Dashboard() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-[0.2em] block mb-1">Consolidated Capital</span>
-                                        <span className="text-2xl font-black text-[#2E7D64] dark:text-[#3B8B76]">KES 8,450,000.00</span>
+                                        <span className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-[0.2em] block mb-1">Consolidated Capital ∑</span>
+                                        <span className="text-2xl font-black text-[#2E7D64] dark:text-[#3B8B76]">
+                                            {showSensitives ? 'KES ••••••••' : 'KES 8,450,000.00'}
+                                        </span>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    <div className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
-                                        <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-2">Benevolence Pool</p>
-                                        <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 245K</p>
-                                        <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                                            <div className="h-full bg-blue-500 w-[65%]"></div>
+                                    {[
+                                        { label: 'Benevolence Pool ∑', value: 'KES 245K', color: 'blue', width: '65%' },
+                                        { label: 'Asset Growth ∑', value: 'KES 6.2M', color: 'orange', width: '82%' },
+                                        { label: 'Operating Fund ∑', value: 'KES 2.0M', color: 'green', width: '45%' },
+                                        { label: 'Pending Pledges ∑', value: 'KES 112K', color: 'purple', width: '30%' },
+                                    ].map((box, i) => (
+                                        <div key={i} className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
+                                            <p className="text-[11px] font-black text-[#475569] dark:text-[#94A3B8] uppercase tracking-widest mb-2">{box.label}</p>
+                                            <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">
+                                                {showSensitives ? 'KES •••' : box.value}
+                                            </p>
+                                            <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                <div className={`h-full w-[${box.width}] ${
+                                                    box.color === 'blue' ? 'bg-blue-500' : 
+                                                    box.color === 'orange' ? 'bg-orange-500' : 
+                                                    box.color === 'green' ? 'bg-green-500' : 'bg-purple-500'
+                                                }`}></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
-                                        <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-2">Asset Growth</p>
-                                        <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 6.2M</p>
-                                        <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                                            <div className="h-full bg-orange-500 w-[82%]"></div>
-                                        </div>
-                                    </div>
-                                    <div className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
-                                        <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-2">Operating Fund</p>
-                                        <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 2.0M</p>
-                                        <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                                            <div className="h-full bg-green-500 w-[45%]"></div>
-                                        </div>
-                                    </div>
-                                    <div className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
-                                        <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-2">Pending Pledges</p>
-                                        <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 112K</p>
-                                        <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                                            <div className="h-full bg-purple-500 w-[30%]"></div>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
                             </section>
                         )}
@@ -243,21 +237,37 @@ function Dashboard() {
                         {/* Dashboard Content - Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             {[
-                                { label: 'Personal Balance', value: `KES ${user?.personal_balance?.toLocaleString() || '12,450'}`, trend: '▲ +2.4%', color: 'blue' },
-                                { label: 'Mandatory Fund Contribution', value: 'KES 45,000', trend: 'Stable', color: 'green' },
-                                { label: 'Benevolence Fund', value: 'KES 2,500', trend: '▲ +5.2%', color: 'orange' },
-                                { label: 'Asset Shares', value: '1,240 Units', trend: '▲ +12%', color: 'purple' },
-                            ].map((stat, i) => (
-                                <div 
-                                    key={i} 
-                                    onClick={() => setSelectedPool(stat.label)}
-                                    className={`bg-white dark:bg-[#1A2433] p-8 rounded-[2.5rem] border ${selectedPool === stat.label ? 'border-[#2E7D64] ring-2 ring-[#2E7D64]/10' : 'border-[#E2E8F0] dark:border-[#2D3A4A]'} shadow-sm hover:shadow-xl transition-all cursor-pointer group`}
-                                >
-                                    <p className="text-[10px] font-black text-[#5A6B7A] uppercase tracking-[0.2em] mb-3">{stat.label}</p>
-                                    <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-2">{stat.value}</p>
-                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full bg-opacity-10 uppercase tracking-widest bg-current text-${stat.color}-500`}>{stat.trend}</span>
-                                </div>
-                            ))}
+                                { label: 'Personal Balance ∑', value: `KES ${user?.personal_balance?.toLocaleString() || '12,450'}`, trend: 'Δ ▲ +2.4%', color: 'blue' },
+                                { label: 'Mandatory Contribution Fund ∑', value: 'KES 45,000', trend: 'Δ Stable', color: 'green' },
+                                { label: 'Benevolence Fund ∑', value: 'KES 2,500', trend: 'Δ ▲ +5.2%', color: 'orange' },
+                                { label: 'Asset Shares ∑', value: '1,240 Units', trend: 'Δ ▲ +12%', color: 'purple' },
+                            ].map((stat, i) => {
+                                const colorMap: { [key: string]: string } = {
+                                    blue: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20',
+                                    green: 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20',
+                                    orange: 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20',
+                                    purple: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20'
+                                };
+                                return (
+                                    <div 
+                                        key={i} 
+                                        onClick={() => setSelectedPool(stat.label.replace(' ∑', ''))}
+                                        className={`p-8 rounded-[2.5rem] border transition-all cursor-pointer group shadow-sm hover:shadow-xl ${
+                                            selectedPool === stat.label.replace(' ∑', '') 
+                                            ? 'bg-white dark:bg-[#1A2433] border-[#2E7D64] ring-4 ring-[#2E7D64]/5' 
+                                            : 'bg-white dark:bg-[#1A2433] border-[#E2E8F0] dark:border-[#2D3A4A]'
+                                        }`}
+                                    >
+                                        <p className="text-[11px] font-black text-[#475569] dark:text-[#94A3B8] uppercase tracking-[0.2em] mb-3">{stat.label}</p>
+                                        <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-3">
+                                            {showSensitives ? '••••••••' : stat.value}
+                                        </p>
+                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${colorMap[stat.color]}`}>
+                                            {stat.trend}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
@@ -280,7 +290,7 @@ function Dashboard() {
                                             className="text-[10px] bg-gray-50 dark:bg-[#0F1720] border-2 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-xl px-4 py-2 outline-none font-black text-[#5A6B7A] uppercase tracking-widest"
                                         >
                                             <option value="Personal Balance">Personal Balance</option>
-                                            <option value="Mandatory Fund Contribution">Mandatory Fund</option>
+                                            <option value="Mandatory Contribution Fund">Mandatory Fund</option>
                                             <option value="Benevolence Fund">Benevolence Pool</option>
                                             <option value="Asset Shares">Asset Units</option>
                                         </select>
@@ -315,7 +325,9 @@ function Dashboard() {
                                                     <p className="text-[10px] text-[#5A6B7A]">{tx.date} • {tx.status}</p>
                                                 </div>
                                             </div>
-                                            <p className={`font-black ${tx.amount.includes('−') ? 'text-red-500' : 'text-[#2E7D64]'}`}>{tx.amount}</p>
+                                            <p className={`font-black ${tx.amount.includes('−') ? 'text-red-500' : 'text-[#2E7D64]'}`}>
+                                                {showSensitives ? 'KES •••' : tx.amount}
+                                            </p>
                                         </div>
                                     ))}
                                 </div>
@@ -334,7 +346,9 @@ function Dashboard() {
                                                 <p className="text-sm font-bold text-[#1E2933] dark:text-[#E2E8F0]">{asset.name}</p>
                                                 <p className="text-[10px] text-[#5A6B7A]">Community Stake: {asset.share}</p>
                                             </div>
-                                            <p className="font-black text-purple-500">{asset.value}</p>
+                                            <p className="font-black text-purple-500">
+                                                {showSensitives ? 'KES •••' : asset.value}
+                                            </p>
                                         </div>
                                     ))}
                                 </div>

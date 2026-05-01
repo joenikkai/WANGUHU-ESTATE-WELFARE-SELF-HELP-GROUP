@@ -29,12 +29,15 @@ import { useAuth } from '../context/AuthContext';
 import EditProfileModal from './EditProfileModal';
 
 const DashboardSidebar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showSensitiveInfo, setShowSensitiveInfo] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem('theme') === 'dark');
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [isProfileMobileOpen, setIsProfileMobileOpen] = useState(false);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -45,6 +48,22 @@ const DashboardSidebar = () => {
       localStorage.setItem('theme', 'light');
     }
   }, [isDarkMode]);
+
+  const handleToggleSensitive = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+        // Real password check via login endpoint (dry run)
+        await axios.post('http://localhost:5555/api/auth/login', {
+            email: user?.email,
+            password: passwordInput
+        });
+        setShowSensitiveInfo(!showSensitiveInfo);
+        setIsPasswordModalOpen(false);
+        setPasswordInput('');
+    } catch (err) {
+        alert('Invalid password. Identity access denied.');
+    }
+  };
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/my-dashboard' },
@@ -111,7 +130,10 @@ const DashboardSidebar = () => {
                     <Edit3 size={14} />
                   </button>
                   <button 
-                    onClick={() => setShowSensitiveInfo(!showSensitiveInfo)}
+                    onClick={() => {
+                        if (!showSensitiveInfo) setIsPasswordModalOpen(true);
+                        else setShowSensitiveInfo(false);
+                    }}
                     className="p-1 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-md transition-colors"
                   >
                     {showSensitiveInfo ? <EyeOff size={14} className="text-[#2E7D64]" /> : <Eye size={14} className="text-[#5A6B7A]" />}
@@ -208,7 +230,7 @@ const DashboardSidebar = () => {
 
       {/* Bottom Navigation - Mobile */}
       <div className="sm:hidden fixed bottom-0 left-0 z-50 w-full h-20 bg-white/80 dark:bg-[#1A2433]/80 backdrop-blur-xl border-t border-[#E2E8F0] dark:border-[#2D3A4A] flex items-center justify-around px-6">
-        {navItems.slice(0, 4).map((item) => (
+        {navItems.slice(0, 3).map((item) => (
           <Link
             key={item.name}
             to={item.path}
@@ -220,11 +242,106 @@ const DashboardSidebar = () => {
             <span className="text-[9px] font-black uppercase tracking-widest">{item.name}</span>
           </Link>
         ))}
+        <button 
+            onClick={() => setIsProfileMobileOpen(true)}
+            className="flex flex-col items-center justify-center gap-1.5 text-[#5A6B7A] dark:text-[#94A3B8]"
+        >
+            <User size={22} />
+            <span className="text-[9px] font-black uppercase tracking-widest">Profile</span>
+        </button>
         <button onClick={() => setIsDarkMode(!isDarkMode)} className="flex flex-col items-center justify-center gap-1.5 text-[#5A6B7A] dark:text-[#94A3B8]">
           {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
           <span className="text-[9px] font-black uppercase tracking-widest">{isDarkMode ? 'Solar' : 'Lunar'}</span>
         </button>
       </div>
+
+      {/* Identity Password Verification Modal */}
+      {isPasswordModalOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[200] backdrop-blur-md">
+            <div className="bg-white dark:bg-[#1A2433] rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl border border-[#E2E8F0] dark:border-[#2D3A4A]">
+                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-500 rounded-2xl flex items-center justify-center mb-6">
+                    <ShieldCheck size={32} />
+                </div>
+                <h3 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-2">Identify Verification</h3>
+                <p className="text-sm text-[#5A6B7A] dark:text-[#94A3B8] mb-8">Please enter your security password to reveal sensitive member data.</p>
+                <form onSubmit={handleToggleSensitive} className="space-y-4">
+                    <input 
+                        type="password" 
+                        placeholder="••••••••"
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        className="w-full px-6 py-4 bg-gray-50 dark:bg-[#0F1720] border-2 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl outline-none focus:border-[#2E7D64] dark:text-white"
+                        autoFocus
+                        required
+                    />
+                    <div className="flex gap-3">
+                        <button type="button" onClick={() => setIsPasswordModalOpen(false)} className="flex-1 py-4 bg-gray-100 dark:bg-slate-800 text-[#1E2933] dark:text-[#E2E8F0] rounded-2xl font-black">Cancel</button>
+                        <button type="submit" className="flex-1 py-4 bg-[#2E7D64] text-white rounded-2xl font-black shadow-xl">Verify</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      )}
+
+      {/* Mobile Profile Sidebar/Modal */}
+      {isProfileMobileOpen && (
+        <div className="fixed inset-0 bg-black/80 z-[200] flex justify-end">
+            <div className="w-[85%] h-full bg-white dark:bg-[#0F1720] p-6 animate-in slide-in-from-right duration-300 overflow-y-auto">
+                <div className="flex justify-between items-center mb-10">
+                    <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Member Identity</h2>
+                    <button onClick={() => setIsProfileMobileOpen(false)} className="p-2 bg-gray-100 dark:bg-slate-800 rounded-xl">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                <div className="flex flex-col items-center mb-10">
+                    <div className="w-24 h-24 rounded-full border-4 border-[#2E7D64] overflow-hidden mb-4 shadow-xl">
+                        <img src={user?.profile_picture_url} alt="Profile" className="w-full h-full object-cover" />
+                    </div>
+                    <h3 className="text-lg font-black text-[#1E2933] dark:text-[#E2E8F0]">{user?.full_name}</h3>
+                    <p className="text-xs font-bold text-[#2E7D64] uppercase tracking-widest">{user?.title}</p>
+                </div>
+
+                <div className="space-y-8">
+                    {[
+                        { label: 'Username', value: user?.username, icon: User, color: 'text-blue-500' },
+                        { label: 'Email Address', value: user?.email, icon: Mail, color: 'text-orange-500' },
+                        { label: 'National ID', value: user?.national_id, icon: Fingerprint, color: 'text-[#2E7D64]' },
+                        { label: 'KRA PIN', value: user?.kra_pin, icon: ShieldCheck, color: 'text-purple-500' },
+                        { label: 'Phone Number', value: user?.phone_number, icon: Phone, color: 'text-pink-500' },
+                        { label: 'Physical Address', value: (user as any)?.physical_address || 'Not Provided', icon: MapPin, color: 'text-red-500' },
+                    ].map((info) => (
+                        <div key={info.label} className="flex gap-4 p-4 rounded-2xl bg-[#F8F9FA] dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A]">
+                            <div className={`p-3 rounded-xl bg-white dark:bg-[#0F1720] shadow-sm ${info.color}`}>
+                                <info.icon size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-[#94A3B8] uppercase tracking-widest mb-0.5">{info.label}</p>
+                                <p className="text-sm font-bold text-[#1E2933] dark:text-[#E2E8F0]">{info.value}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-12 space-y-4">
+                    <button 
+                        onClick={() => { setIsEditModalOpen(true); setIsProfileMobileOpen(false); }}
+                        className="w-full py-4 bg-[#2E7D64] text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-3"
+                    >
+                        <Edit3 size={18} />
+                        Edit Profile
+                    </button>
+                    <button 
+                        onClick={logout}
+                        className="w-full py-4 border-2 border-red-100 text-red-500 rounded-2xl font-black flex items-center justify-center gap-3"
+                    >
+                        <LogOut size={18} />
+                        Disconnect
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
 
       {isEditModalOpen && <EditProfileModal onClose={() => setIsEditModalOpen(false)} />}
     </>
