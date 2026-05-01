@@ -21,7 +21,9 @@ import {
   Fingerprint,
   User,
   Mail,
-  Edit3
+  Edit3,
+  Phone,
+  MapPin
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import EditProfileModal from './EditProfileModal';
@@ -148,6 +150,26 @@ const DashboardSidebar = () => {
                     <span className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-wider">KRA PIN</span>
                     <span className="text-xs font-mono font-bold dark:text-[#E2E8F0]">
                       {showSensitiveInfo ? user?.kra_pin : '••••••••'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Phone size={16} className="text-pink-500" />
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-wider">Phone Number</span>
+                    <span className="text-xs font-bold text-[#1E2933] dark:text-[#E2E8F0]">
+                      {showSensitiveInfo ? user?.phone_number : '••••••••••'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <MapPin size={16} className="text-red-500" />
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-wider">Physical Address</span>
+                    <span className="text-xs font-bold text-[#1E2933] dark:text-[#E2E8F0] line-clamp-1">
+                      {showSensitiveInfo ? (user as any)?.physical_address || 'Not Provided' : '••••••••••••'}
                     </span>
                   </div>
                 </div>

@@ -6,7 +6,7 @@ import Shield from "../components/Shield";
 import MinutesRegistry from "../components/MinutesRegistry";
 import TransactionGraph from "../components/TransactionGraph";
 import ConsignProductModal from "../components/ConsignProductModal";
-import { Camera, Eye, EyeOff, Upload, X, Package, CheckCircle, Clock } from "lucide-react";
+import { Camera, Eye, EyeOff, Upload, X, Package, CheckCircle, Clock, TrendingUp, ShieldCheck } from "lucide-react";
 import { useOnlineStatus, useOfflineSync } from "../context/SyncContext";
 import axios from 'axios';
 
@@ -157,23 +157,50 @@ function Dashboard() {
 
                     {/* Treasurer Global Oversight */}
                     {isTreasurer && (
-                        <section className="mb-8 p-6 bg-white dark:bg-[#1A2433] border border-[#2E7D64] rounded-2xl shadow-lg animate-in fade-in slide-in-from-top-4 duration-500">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Treasury Oversight</h2>
-                                <span className="text-[10px] bg-[#2E7D64]/10 text-[#2E7D64] px-3 py-1 rounded-full font-black uppercase tracking-widest">Total Capital: KES 8.45M</span>
+                        <section className="mb-8 p-8 bg-white dark:bg-[#1A2433] border border-[#2E7D64] rounded-[2.5rem] shadow-xl animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="flex justify-between items-center mb-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-[#2E7D64] rounded-2xl text-white">
+                                        <ShieldCheck size={28} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Communal Treasury</h2>
+                                        <p className="text-xs text-[#5A6B7A] font-bold uppercase tracking-widest">Real-time Global Liquidity Oversight</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-[0.2em] block mb-1">Consolidated Capital</span>
+                                    <span className="text-2xl font-black text-[#2E7D64] dark:text-[#3B8B76]">KES 8,450,000.00</span>
+                                </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="p-5 bg-[#F8F9FA] dark:bg-[#0F1720] border-l-4 border-blue-500 rounded-r-2xl">
-                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-1">Benevolence Pool</p>
-                                    <p className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 245,000</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
+                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-2">Benevolence Pool</p>
+                                    <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 245K</p>
+                                    <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-blue-500 w-[65%]"></div>
+                                    </div>
                                 </div>
-                                <div className="p-5 bg-[#F8F9FA] dark:bg-[#0F1720] border-l-4 border-orange-500 rounded-r-2xl">
-                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-1">Asset Growth</p>
-                                    <p className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 6,200,000</p>
+                                <div className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
+                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-2">Asset Growth</p>
+                                    <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 6.2M</p>
+                                    <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-orange-500 w-[82%]"></div>
+                                    </div>
                                 </div>
-                                <div className="p-5 bg-[#F8F9FA] dark:bg-[#0F1720] border-l-4 border-green-500 rounded-r-2xl">
-                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-1">Operating Fund</p>
-                                    <p className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 2,005,000</p>
+                                <div className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
+                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-2">Operating Fund</p>
+                                    <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 2.0M</p>
+                                    <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-green-500 w-[45%]"></div>
+                                    </div>
+                                </div>
+                                <div className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
+                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-2">Pending Pledges</p>
+                                    <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 112K</p>
+                                    <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-purple-500 w-[30%]"></div>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -199,33 +226,45 @@ function Dashboard() {
                     )}
 
                     {/* Dashboard Content - Stats */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         {[
                             { label: 'Personal Balance', value: `KES ${user?.personal_balance?.toLocaleString()}`, trend: '+2.4%', color: 'blue' },
                             { label: 'Mandatory Savings', value: 'KES 45,000', trend: 'On Track', color: 'green' },
                             { label: 'Benevolence Fund', value: 'KES 2,500', trend: 'Active', color: 'orange' },
                             { label: 'Asset Shares', value: '1,240 Units', trend: '+12%', color: 'purple' },
                         ].map((stat, i) => (
-                            <div key={i} className="bg-white dark:bg-[#1A2433] p-5 rounded-2xl border border-[#E2E8F0] dark:border-[#2D3A4A] shadow-sm">
-                                <p className="text-[10px] font-bold text-[#5A6B7A] uppercase tracking-widest mb-1">{stat.label}</p>
-                                <p className="text-xl font-bold text-[#1E2933] dark:text-[#E2E8F0]">{showSensitives ? stat.value : '••••••••'}</p>
-                                <span className={`text-[10px] font-bold text-${stat.color}-500`}>{stat.trend}</span>
+                            <div key={i} className="bg-white dark:bg-[#1A2433] p-8 rounded-[2.5rem] border border-[#E2E8F0] dark:border-[#2D3A4A] shadow-sm hover:shadow-xl transition-all">
+                                <p className="text-[10px] font-black text-[#5A6B7A] uppercase tracking-[0.2em] mb-3">{stat.label}</p>
+                                <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-2">{showSensitives ? stat.value : '••••••••'}</p>
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full bg-opacity-10 uppercase tracking-widest bg-current text-${stat.color}-500`}>{stat.trend}</span>
                             </div>
                         ))}
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                        <div className="lg:col-span-2 bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl p-6 shadow-sm">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-[#1E2933] dark:text-[#E2E8F0]">Fund Monitoring</h2>
-                                <select className="text-xs bg-gray-50 dark:bg-slate-800 border-none rounded-lg px-3 py-1.5 outline-none font-bold text-[#5A6B7A]">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
+                        <div className="lg:col-span-3 bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-[2.5rem] p-10 shadow-sm">
+                            <div className="flex justify-between items-center mb-10">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/10 rounded-2xl flex items-center justify-center text-blue-500">
+                                        <TrendingUp size={28} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Fund Monitoring</h2>
+                                        <p className="text-xs text-[#5A6B7A] font-bold uppercase tracking-widest">Growth Analytics & History</p>
+                                    </div>
+                                </div>
+                                <select className="text-[10px] bg-gray-50 dark:bg-[#0F1720] border-2 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-xl px-4 py-2 outline-none font-black text-[#5A6B7A] uppercase tracking-widest">
                                     <option>Private Balance</option>
                                     <option>Benevolence Pool</option>
                                 </select>
                             </div>
-                            <TransactionGraph data={dummyGraphData} />
+                            <div className="h-[400px]">
+                                <TransactionGraph data={dummyGraphData} />
+                            </div>
                         </div>
-                        <MinutesRegistry />
+                        <div className="lg:col-span-1">
+                            <MinutesRegistry />
+                        </div>
                     </div>
 
                     {/* My Market Listings */}
