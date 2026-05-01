@@ -6,7 +6,7 @@ import Shield from "../components/Shield";
 import MinutesRegistry from "../components/MinutesRegistry";
 import TransactionGraph from "../components/TransactionGraph";
 import ConsignProductModal from "../components/ConsignProductModal";
-import { Camera, Eye, EyeOff, Upload, X, Package, CheckCircle, Clock, TrendingUp, ShieldCheck } from "lucide-react";
+import { Camera, Eye, EyeOff, Upload, X, Package, CheckCircle, Clock, TrendingUp, ShieldCheck, Receipt, Building2 } from "lucide-react";
 import { useOnlineStatus, useOfflineSync } from "../context/SyncContext";
 import axios from 'axios';
 
@@ -16,6 +16,7 @@ function Dashboard() {
     const { addToQueue } = useOfflineSync();
     
     const [showSensitives, setShowSensitives] = useState(false);
+    const [selectedPool, setSelectedPool] = useState('Personal Balance');
     const [showBenevolenceModal, setShowBenevolenceModal] = useState(false);
     const [showContributeModal, setShowContributeModal] = useState(false);
     const [showConsignModal, setShowConsignModal] = useState(false);
@@ -111,12 +112,25 @@ function Dashboard() {
     const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
     const isChairman = user?.title === 'Chairperson' || user?.role === 'admin';
 
-    // Simulated Graph Data
-    const dummyGraphData = Array.from({ length: 15 }, (_, i) => ({
-        date: `May ${i + 1}`,
-        amount: Math.floor(Math.random() * 10000) + 1000,
-        type: 'contribution'
-    }));
+    // Simulated Financial Data
+    const dummyGraphData = {
+        'Personal Balance': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: Math.floor(Math.random() * 5000) + 1000, type: 'balance' })),
+        'Mandatory Fund Contribution': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: 3000, type: 'mandatory' })),
+        'Benevolence Fund': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: Math.floor(Math.random() * 500) + 50, type: 'benevolence' })),
+        'Asset Shares': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: Math.floor(Math.random() * 100) + 10, type: 'assets' }))
+    };
+
+    const dummyAssets = [
+        { id: 1, name: 'Sector A Land', share: '2.1%', value: 'KES 450,000' },
+        { id: 2, name: 'Communal Tractor', share: '4.5%', value: 'KES 120,000' },
+        { id: 3, name: 'Water Pump B', share: '10.0%', value: 'KES 25,000' }
+    ];
+
+    const dummyTransactions = [
+        { id: 1, type: 'Contribution', amount: 'KES 3,000', date: 'May 10', status: 'Completed' },
+        { id: 2, type: 'Withdrawal', amount: 'KES −1,500', date: 'May 08', status: 'Completed' },
+        { id: 3, type: 'Mandatory Fee', amount: 'KES 1,000', date: 'May 01', status: 'Completed' }
+    ];
 
     return (
         <div className="min-h-screen flex bg-[#F8F9FA] dark:bg-[#0F1720]">
@@ -229,14 +243,18 @@ function Dashboard() {
                         {/* Dashboard Content - Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             {[
-                                { label: 'Personal Balance', value: `KES ${user?.personal_balance?.toLocaleString()}`, trend: '+2.4%', color: 'blue' },
-                                { label: 'Mandatory Savings', value: 'KES 45,000', trend: 'On Track', color: 'green' },
-                                { label: 'Benevolence Fund', value: 'KES 2,500', trend: 'Active', color: 'orange' },
-                                { label: 'Asset Shares', value: '1,240 Units', trend: '+12%', color: 'purple' },
+                                { label: 'Personal Balance', value: `KES ${user?.personal_balance?.toLocaleString() || '12,450'}`, trend: '▲ +2.4%', color: 'blue' },
+                                { label: 'Mandatory Fund Contribution', value: 'KES 45,000', trend: 'Stable', color: 'green' },
+                                { label: 'Benevolence Fund', value: 'KES 2,500', trend: '▲ +5.2%', color: 'orange' },
+                                { label: 'Asset Shares', value: '1,240 Units', trend: '▲ +12%', color: 'purple' },
                             ].map((stat, i) => (
-                                <div key={i} className="bg-white dark:bg-[#1A2433] p-8 rounded-[2.5rem] border border-[#E2E8F0] dark:border-[#2D3A4A] shadow-sm hover:shadow-xl transition-all">
+                                <div 
+                                    key={i} 
+                                    onClick={() => setSelectedPool(stat.label)}
+                                    className={`bg-white dark:bg-[#1A2433] p-8 rounded-[2.5rem] border ${selectedPool === stat.label ? 'border-[#2E7D64] ring-2 ring-[#2E7D64]/10' : 'border-[#E2E8F0] dark:border-[#2D3A4A]'} shadow-sm hover:shadow-xl transition-all cursor-pointer group`}
+                                >
                                     <p className="text-[10px] font-black text-[#5A6B7A] uppercase tracking-[0.2em] mb-3">{stat.label}</p>
-                                    <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-2">{showSensitives ? stat.value : '••••••••'}</p>
+                                    <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-2">{stat.value}</p>
                                     <span className={`text-[10px] font-black px-2 py-0.5 rounded-full bg-opacity-10 uppercase tracking-widest bg-current text-${stat.color}-500`}>{stat.trend}</span>
                                 </div>
                             ))}
@@ -251,16 +269,25 @@ function Dashboard() {
                                         </div>
                                         <div>
                                             <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Fund Monitoring</h2>
-                                            <p className="text-xs text-[#5A6B7A] font-bold uppercase tracking-widest">Growth Analytics & History</p>
+                                            <p className="text-xs text-[#5A6B7A] font-bold uppercase tracking-widest">Growth Analytics & History: {selectedPool}</p>
                                         </div>
                                     </div>
-                                    <select className="text-[10px] bg-gray-50 dark:bg-[#0F1720] border-2 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-xl px-4 py-2 outline-none font-black text-[#5A6B7A] uppercase tracking-widest">
-                                        <option>Private Balance</option>
-                                        <option>Benevolence Pool</option>
-                                    </select>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-black text-[#94A3B8] uppercase">∑ Total</span>
+                                        <select 
+                                            value={selectedPool}
+                                            onChange={(e) => setSelectedPool(e.target.value)}
+                                            className="text-[10px] bg-gray-50 dark:bg-[#0F1720] border-2 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-xl px-4 py-2 outline-none font-black text-[#5A6B7A] uppercase tracking-widest"
+                                        >
+                                            <option value="Personal Balance">Personal Balance</option>
+                                            <option value="Mandatory Fund Contribution">Mandatory Fund</option>
+                                            <option value="Benevolence Fund">Benevolence Pool</option>
+                                            <option value="Asset Shares">Asset Units</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div className="h-[400px]">
-                                    <TransactionGraph data={dummyGraphData} />
+                                    <TransactionGraph data={(dummyGraphData as any)[selectedPool]} />
                                 </div>
                             </div>
                             <div className="lg:col-span-1">
@@ -268,67 +295,49 @@ function Dashboard() {
                             </div>
                         </div>
 
-                        {/* My Market Listings */}
-                        <div className="mb-8">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">My Market Consignments</h2>
-                                <button onClick={fetchMyListings} className="text-xs font-bold text-[#2E7D64] uppercase tracking-widest hover:underline">Refresh</button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {myListings.length > 0 ? myListings.map((listing) => (
-                                    <div key={listing.id} className="bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl p-6 shadow-sm group">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <h3 className="text-lg font-bold text-[#1E2933] dark:text-[#E2E8F0] group-hover:text-[#2E7D64] transition-colors">{listing.product_name}</h3>
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                                                listing.status === 'available' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                                            }`}>
-                                                {listing.status.replace('_', ' ')}
-                                            </span>
-                                        </div>
-                                        <div className="space-y-2 mb-6">
-                                            <div className="flex justify-between text-xs">
-                                                <span className="text-[#94A3B8]">Quantity:</span>
-                                                <span className="font-bold dark:text-[#E2E8F0]">{listing.quantity} {listing.unit}</span>
+                        {/* New Data Sections: Assets & Transactions */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                            {/* Transactions Table */}
+                            <div className="bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-[2.5rem] p-8">
+                                <h2 className="text-xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-6 flex items-center gap-2">
+                                    <Receipt size={20} className="text-[#2E7D64]" />
+                                    Recent Transactions
+                                </h2>
+                                <div className="space-y-4">
+                                    {dummyTransactions.map(tx => (
+                                        <div key={tx.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#0F1720] rounded-2xl border border-transparent hover:border-[#2E7D64] transition-all">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.amount.includes('−') ? 'bg-red-50 text-red-500' : 'bg-green-50 text-[#2E7D64]'}`}>
+                                                    <TrendingUp size={18} className={tx.amount.includes('−') ? 'rotate-180' : ''} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-[#1E2933] dark:text-[#E2E8F0]">{tx.type}</p>
+                                                    <p className="text-[10px] text-[#5A6B7A]">{tx.date} • {tx.status}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex justify-between text-xs">
-                                                <span className="text-[#94A3B8]">Price:</span>
-                                                <span className="font-bold text-[#2E7D64]">KES {listing.price_per_unit} / {listing.unit}</span>
-                                            </div>
+                                            <p className={`font-black ${tx.amount.includes('−') ? 'text-red-500' : 'text-[#2E7D64]'}`}>{tx.amount}</p>
                                         </div>
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-[#5A6B7A]">
-                                            {listing.warehouse_status ? (
-                                                <><CheckCircle size={14} className="text-green-500" /> In Warehouse</>
-                                            ) : (
-                                                <><Clock size={14} className="text-orange-500" /> Pending Delivery</>
-                                            )}
-                                        </div>
-                                    </div>
-                                )) : (
-                                    <div className="col-span-full py-12 text-center border-2 border-dashed border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl">
-                                        <Package size={48} className="mx-auto text-[#94A3B8] mb-4 opacity-20" />
-                                        <p className="text-[#5A6B7A] dark:text-[#94A3B8] font-bold italic">No active consignments.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                            <div className="bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl p-6">
-                                <h2 className="text-xl font-bold text-[#1E2933] dark:text-[#E2E8F0] mb-4">Member Welfare</h2>
-                                <p className="text-sm text-[#5A6B7A] mb-6 leading-relaxed italic">"Supporting each other in times of need."</p>
-                                <button 
-                                    onClick={() => setShowBenevolenceModal(true)}
-                                    className="w-full py-4 border-2 border-dashed border-[#2E7D64] text-[#2E7D64] rounded-2xl font-bold hover:bg-[#2E7D64] hover:text-white transition-all flex items-center justify-center gap-3"
-                                >
-                                    Call for Benevolence
-                                </button>
-                            </div>
-                            <div className="bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl p-6 flex flex-col justify-between">
-                                <div>
-                                    <h2 className="text-xl font-bold text-[#1E2933] dark:text-[#E2E8F0] mb-4">Group Assets</h2>
-                                    <p className="text-sm text-[#5A6B7A] mb-4">You own 4.5% of the communal tractor and 2.1% of Sector A land.</p>
+                                    ))}
                                 </div>
-                                <button className="w-full py-3 bg-[#1E2933] dark:bg-slate-800 text-white rounded-xl font-bold text-sm shadow-xl">Manage Asset Portfolio</button>
+                            </div>
+
+                            {/* Assets Portfolio */}
+                            <div className="bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-[2.5rem] p-8">
+                                <h2 className="text-xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-6 flex items-center gap-2">
+                                    <Building2 size={20} className="text-purple-500" />
+                                    Asset Portfolio
+                                </h2>
+                                <div className="space-y-4">
+                                    {dummyAssets.map(asset => (
+                                        <div key={asset.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#0F1720] rounded-2xl border border-transparent hover:border-purple-200 transition-all">
+                                            <div>
+                                                <p className="text-sm font-bold text-[#1E2933] dark:text-[#E2E8F0]">{asset.name}</p>
+                                                <p className="text-[10px] text-[#5A6B7A]">Community Stake: {asset.share}</p>
+                                            </div>
+                                            <p className="font-black text-purple-500">{asset.value}</p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { updateProfilePicture, updateProfilePictureFromUpload } from '../controllers/userController';
+import { 
+    updateProfilePicture, 
+    updateProfilePictureFromUpload, 
+    removeProfilePicture, 
+    updateProfile 
+} from '../controllers/userController';
 import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -19,5 +24,7 @@ const upload = multer({ storage });
 
 router.post('/profile-picture', authenticateToken, updateProfilePicture);
 router.post('/profile-picture-upload', authenticateToken, upload.single('profile_picture'), updateProfilePictureFromUpload);
+router.delete('/profile-picture', authenticateToken, removeProfilePicture);
+router.put('/profile', authenticateToken, updateProfile);
 
 export default router;

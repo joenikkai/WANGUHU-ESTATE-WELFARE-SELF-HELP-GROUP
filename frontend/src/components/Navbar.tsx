@@ -55,6 +55,12 @@ const DashboardSidebar = () => {
     { name: 'Help Desk', icon: HelpCircle, path: '/help-desk' },
   ];
 
+  // Role-based extra items
+  const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
+  if (isTreasurer) {
+    navItems.splice(5, 0, { name: 'Monitor Community Funds', icon: ShieldCheck, path: '/community-funds' });
+  }
+
   const isActive = (path: string) => location.pathname === path;
 
   return (

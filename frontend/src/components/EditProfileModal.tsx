@@ -8,7 +8,7 @@ interface EditProfileModalProps {
 }
 
 const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
-    const { user, token } = useAuth();
+    const { user, updateProfile, removeProfilePicture } = useAuth();
     const [step, setStep] = useState<'mfa' | 'form'>('mfa');
     const [mfaCode, setMfaCode] = useState('');
     const [loading, setLoading] = useState(false);
@@ -16,10 +16,11 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
     const [success, setSuccess] = useState(false);
 
     const [formData, setFormData] = useState({
+        username: user?.username || '',
         full_name: user?.full_name || '',
         email: user?.email || '',
         phone_number: user?.phone_number || '',
-        physical_address: '', // Assuming this exists or will be added
+        physical_address: (user as any)?.physical_address || '',
         national_id: user?.national_id || '',
         kra_pin: user?.kra_pin || ''
     });
@@ -43,16 +44,24 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
         setLoading(true);
         setError('');
         try {
-            // Placeholder for backend update logic
-            // await axios.put('http://localhost:5555/api/users/profile', formData, {
-            //     headers: { Authorization: `Bearer ${token}` }
-            // });
+            await updateProfile(formData);
             setSuccess(true);
             setTimeout(() => onClose(), 1500);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Update failed');
+            setError(err.message || 'Update failed');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRemovePhoto = async () => {
+        if (window.confirm('Are you sure you want to remove your profile photo?')) {
+            try {
+                await removeProfilePicture();
+                alert('Photo removed');
+            } catch (err) {
+                alert('Failed to remove photo');
+            }
         }
     };
 
@@ -111,19 +120,37 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
                     </div>
                 ) : (
                     <div>
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="p-3 bg-green-50 dark:bg-green-900/20 text-[#2E7D64] rounded-2xl">
-                                <User size={32} />
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-green-50 dark:bg-green-900/20 text-[#2E7D64] rounded-2xl">
+                                    <User size={32} />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Edit Member Profile</h2>
+                                    <p className="text-xs text-[#5A6B7A] font-bold uppercase tracking-widest">Update your biometric & legal data</p>
+                                </div>
                             </div>
-                            <div>
-                                <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Edit Member Profile</h2>
-                                <p className="text-xs text-[#5A6B7A] font-bold uppercase tracking-widest">Update your biometric & legal data</p>
-                            </div>
+                            {user?.profile_picture_url && (
+                                <button 
+                                    type="button" 
+                                    onClick={handleRemovePhoto}
+                                    className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline"
+                                >
+                                    Remove Photo
+                                </button>
+                            )}
                         </div>
 
                         <form onSubmit={handleUpdate} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">Username</label>
+                                        <div className="relative">
+                                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={16} />
+                                            <input type="text" value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
+                                        </div>
+                                    </div>
                                     <div>
                                         <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">Full Name</label>
                                         <div className="relative">
@@ -138,6 +165,9 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
                                             <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="space-y-4">
                                     <div>
                                         <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">Phone Number</label>
                                         <div className="relative">
@@ -145,9 +175,6 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
                                             <input type="text" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
                                         </div>
                                     </div>
-                                </div>
-
-                                <div className="space-y-4">
                                     <div>
                                         <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">National ID</label>
                                         <div className="relative">
@@ -162,19 +189,22 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
                                             <input type="text" value={formData.kra_pin} onChange={(e) => setFormData({...formData, kra_pin: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
                                         </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">Physical Address</label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={16} />
-                                            <input type="text" value={formData.physical_address} onChange={(e) => setFormData({...formData, physical_address: e.target.value})} placeholder="Section, House No." className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" />
-                                        </div>
-                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">Physical Address</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={16} />
+                                    <input type="text" value={formData.physical_address} onChange={(e) => setFormData({...formData, physical_address: e.target.value})} placeholder="Section, House No." className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" />
                                 </div>
                             </div>
 
                             <div className="pt-4 border-t border-[#E2E8F0] dark:border-[#2D3A4A] flex gap-4">
                                 <button type="button" onClick={onClose} className="flex-1 py-4 bg-gray-100 dark:bg-slate-800 text-[#1E2933] dark:text-[#E2E8F0] rounded-2xl font-black">Cancel</button>
-                                <button type="submit" className="flex-2 py-4 bg-[#2E7D64] text-white rounded-2xl font-black shadow-xl hover:bg-[#256652] transition-all">Save Changes</button>
+                                <button type="submit" disabled={loading} className="flex-2 py-4 bg-[#2E7D64] text-white rounded-2xl font-black shadow-xl hover:bg-[#256652] transition-all">
+                                    {loading ? 'Saving...' : 'Save Changes'}
+                                </button>
                             </div>
                         </form>
                     </div>

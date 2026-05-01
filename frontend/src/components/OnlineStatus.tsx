@@ -7,7 +7,9 @@ function OnlineStatus() {
 
     return (
         <div className={`fixed z-[100] flex flex-col gap-3 pointer-events-none transition-all duration-500 ${
-            isFloatingTop ? "top-6 right-6 items-end" : "bottom-6 right-6 items-end"
+            isFloatingTop 
+            ? "top-6 right-6 items-end" 
+            : "bottom-6 right-6 sm:bottom-6 sm:right-6 items-end sm:items-end top-6 left-6 sm:top-auto sm:left-auto items-start sm:items-end"
         }`}>
             {queue.length > 0 && (
                 <div className="pointer-events-auto bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl p-5 shadow-2xl max-w-xs animate-in zoom-in-95 duration-300">

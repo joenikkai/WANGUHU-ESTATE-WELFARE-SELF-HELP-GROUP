@@ -34,6 +34,9 @@ type AuthContextType = {
     }) => Promise<void>;
     logout: () => void;
     updateProfilePicture: (data: string | File) => Promise<void>;
+    removeProfilePicture: () => Promise<void>;
+    updateProfile: (formData: any) => Promise<any>;
+    setUser: (user: User | null) => void;
     loading: boolean;
 };
 
@@ -106,6 +109,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const removeProfilePicture = async () => {
+        if (!token) return;
+        try {
+            await axios.delete(`${API_URL}/users/profile-picture`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (user) {
+                const updatedUser = { ...user, profile_picture_url: '' };
+                setUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Removal failed');
+        }
+    };
+
+    const updateProfile = async (formData: any) => {
+        if (!token) return;
+        try {
+            const response = await axios.put(`${API_URL}/users/profile`, formData, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const updatedUser = response.data.user;
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Update failed');
+        }
+    };
+
     const logout = () => {
         setToken(null);
         setUser(null);
@@ -114,7 +148,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout, updateProfilePicture, loading }}>
+        <AuthContext.Provider value={{ user, token, login, register, logout, updateProfilePicture, removeProfilePicture, updateProfile, setUser, loading }}>
             {children}
         </AuthContext.Provider>
     );
