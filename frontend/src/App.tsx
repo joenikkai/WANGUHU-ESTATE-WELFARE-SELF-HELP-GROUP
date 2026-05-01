@@ -13,11 +13,17 @@ import Products from "./pages/Products";
 import Services from "./pages/Services";
 import AboutUs from "./pages/About Us";
 import Dashboard from "./pages/Dashboard";
+import Marketplace from "./pages/Marketplace";
+import StockHub from "./pages/StockHub";
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Landing/>
+  },
+  {
+    path: '/marketplace',
+    element: <Marketplace/>
   },
   {
     path: '/login',
@@ -53,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: '/my-dashboard',
         element: <Dashboard/>
+      },
+      {
+        path: '/stocks',
+        element: <StockHub/>
       }
     ]
   },

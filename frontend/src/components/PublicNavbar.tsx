@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Menu } from 'lucide-react';
+import { ShieldCheck, Menu, Package } from 'lucide-react';
 
 const PublicNavbar = () => {
   return (
@@ -14,10 +14,13 @@ const PublicNavbar = () => {
           </Link>
           
           <div className="hidden md:flex items-center gap-8">
+            <Link to="/marketplace" className="text-sm font-black text-[#2E7D64] dark:text-[#3B8B76] hover:opacity-80 transition-all flex items-center gap-2">
+              <Package size={18} />
+              The Exchange
+            </Link>
             <Link to="/products" className="text-sm font-bold text-[#5A6B7A] dark:text-[#94A3B8] hover:text-[#2E7D64] transition-colors">Products</Link>
             <Link to="/services" className="text-sm font-bold text-[#5A6B7A] dark:text-[#94A3B8] hover:text-[#2E7D64] transition-colors">Services</Link>
             <Link to="/about-us" className="text-sm font-bold text-[#5A6B7A] dark:text-[#94A3B8] hover:text-[#2E7D64] transition-colors">About Us</Link>
-            <Link to="/help-desk" className="text-sm font-bold text-[#5A6B7A] dark:text-[#94A3B8] hover:text-[#2E7D64] transition-colors">Help Desk</Link>
             <Link to="/login" className="px-6 py-2.5 bg-[#2E7D64] text-white rounded-xl font-bold text-sm shadow-lg hover:bg-[#256652] transition-all transform hover:-translate-y-0.5">Member Login</Link>
           </div>
 

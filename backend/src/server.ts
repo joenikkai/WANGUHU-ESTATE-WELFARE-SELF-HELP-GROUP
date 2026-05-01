@@ -5,6 +5,7 @@ import cron from 'node-cron';
 import pool from './config/db';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import marketplaceRoutes from './routes/marketplaceRoutes';
 import { mergeDuplicateImages, cleanupOrphanedImages } from './utils/imageMaintenance';
 
 const app = express();
@@ -24,6 +25,7 @@ cron.schedule('0 0 * * *', async () => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
 
 app.get('/api/greeting', async (req, res) => {
   try {

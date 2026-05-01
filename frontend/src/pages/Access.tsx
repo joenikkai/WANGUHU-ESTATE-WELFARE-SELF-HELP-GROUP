@@ -270,6 +270,10 @@ function SignUp() {
                         Confirm Identity & Join
                     </button>
                 </form>
+
+                <p className="mt-8 text-center text-sm text-[#5A6B7A] dark:text-[#94A3B8]">
+                    Already a member? <a href="/login" className="text-[#2E7D64] font-black hover:underline">I already have an account</a>
+                </p>
             </div>
         </div>
     );

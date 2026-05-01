@@ -5,18 +5,22 @@ import Footer from "../components/Footer";
 import Shield from "../components/Shield";
 import MinutesRegistry from "../components/MinutesRegistry";
 import TransactionGraph from "../components/TransactionGraph";
-import { Camera, Eye, EyeOff, Upload, X } from "lucide-react";
+import ConsignProductModal from "../components/ConsignProductModal";
+import { Camera, Eye, EyeOff, Upload, X, Package, CheckCircle, Clock } from "lucide-react";
 import { useOnlineStatus, useOfflineSync } from "../context/SyncContext";
+import axios from 'axios';
 
 function Dashboard() {
-    const { user, updateProfilePicture } = useAuth();
+    const { user, token, updateProfilePicture } = useAuth();
     const isOnline = useOnlineStatus();
     const { addToQueue } = useOfflineSync();
     
     const [showSensitives, setShowSensitives] = useState(false);
     const [showBenevolenceModal, setShowBenevolenceModal] = useState(false);
     const [showContributeModal, setShowContributeModal] = useState(false);
+    const [showConsignModal, setShowConsignModal] = useState(false);
     const [showProfileModal, setShowProfileModal] = useState(false);
+    const [myListings, setMyListings] = useState<any[]>([]);
     const [uptime, setUptime] = useState("00:00:00");
 
     // Camera Refs
@@ -25,7 +29,20 @@ function Dashboard() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const fetchMyListings = async () => {
+        if (!token) return;
+        try {
+            const response = await axios.get('http://localhost:5555/api/marketplace/my-listings', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMyListings(response.data);
+        } catch (err) {
+            console.error("Failed to fetch listings", err);
+        }
+    };
+
     useEffect(() => {
+        fetchMyListings();
         if (user?.role === 'admin') {
             const startTime = Date.now() - Math.random() * 10000000;
             const interval = setInterval(() => {
@@ -37,7 +54,7 @@ function Dashboard() {
             }, 1000);
             return () => clearInterval(interval);
         }
-    }, [user]);
+    }, [user, token]);
 
     const handleAction = (action: string, payload: any) => {
         if (!isOnline) {
@@ -90,8 +107,9 @@ function Dashboard() {
         }
     };
 
-    const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
     const firstName = user?.full_name?.split(' ')[0] || 'Member';
+    const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
+    const isChairman = user?.title === 'Chairperson' || user?.role === 'admin';
 
     // Simulated Graph Data
     const dummyGraphData = Array.from({ length: 15 }, (_, i) => ({
@@ -105,7 +123,7 @@ function Dashboard() {
             <DashboardSidebar />
             
             <main className="flex-grow sm:ml-72 pb-20 sm:pb-8 p-4 sm:p-6 lg:p-8 transition-all duration-300">
-                <div className="max-w-7xl mx-auto">
+                <div className="max-w-[1600px] mx-auto">
                     {/* Header */}
                     <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 bg-white dark:bg-[#1A2433] p-6 rounded-2xl border border-[#E2E8F0] dark:border-[#2D3A4A] shadow-sm">
                         <div className="flex items-center gap-5">
@@ -126,12 +144,59 @@ function Dashboard() {
                             </div>
                         </div>
                         <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+                            <button onClick={() => setShowConsignModal(true)} className="flex-1 sm:flex-none px-6 py-2.5 bg-orange-500 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-orange-600 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                                <Package size={18} />
+                                Post Product
+                            </button>
                             <button onClick={() => setShowContributeModal(true)} className="flex-1 sm:flex-none px-6 py-2.5 bg-[#2E7D64] text-white rounded-xl font-bold text-sm shadow-lg hover:bg-[#256652] transition-all transform hover:-translate-y-0.5">Quick Contribute</button>
                             <button onClick={() => setShowSensitives(!showSensitives)} className="p-2.5 border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
                                 {showSensitives ? <EyeOff size={20} className="text-[#5A6B7A]" /> : <Eye size={20} className="text-[#5A6B7A]" />}
                             </button>
                         </div>
                     </header>
+
+                    {/* Treasurer Global Oversight */}
+                    {isTreasurer && (
+                        <section className="mb-8 p-6 bg-white dark:bg-[#1A2433] border border-[#2E7D64] rounded-2xl shadow-lg animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Treasury Oversight</h2>
+                                <span className="text-[10px] bg-[#2E7D64]/10 text-[#2E7D64] px-3 py-1 rounded-full font-black uppercase tracking-widest">Total Capital: KES 8.45M</span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="p-5 bg-[#F8F9FA] dark:bg-[#0F1720] border-l-4 border-blue-500 rounded-r-2xl">
+                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-1">Benevolence Pool</p>
+                                    <p className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 245,000</p>
+                                </div>
+                                <div className="p-5 bg-[#F8F9FA] dark:bg-[#0F1720] border-l-4 border-orange-500 rounded-r-2xl">
+                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-1">Asset Growth</p>
+                                    <p className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 6,200,000</p>
+                                </div>
+                                <div className="p-5 bg-[#F8F9FA] dark:bg-[#0F1720] border-l-4 border-green-500 rounded-r-2xl">
+                                    <p className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-widest mb-1">Operating Fund</p>
+                                    <p className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">KES 2,005,000</p>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Chairman Request Portal */}
+                    {isChairman && (
+                        <section className="mb-8 p-6 bg-white dark:bg-[#1A2433] border border-orange-400 rounded-2xl shadow-lg border-dashed">
+                            <h2 className="text-xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-6 italic flex items-center gap-2">
+                                <ShieldCheck className="text-orange-500" />
+                                Chairman's Review Desk
+                            </h2>
+                            <div className="space-y-4">
+                                <div className="p-4 border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl bg-[#F8F9FA] dark:bg-[#0F1720]/50 flex justify-between items-center group hover:border-orange-200 transition-colors">
+                                    <div>
+                                        <p className="font-bold text-sm text-[#1E2933] dark:text-[#E2E8F0]">Proposal: Borehole Drilling B</p>
+                                        <p className="text-xs text-[#5A6B7A]">High Priority • Pending Agenda Inclusion</p>
+                                    </div>
+                                    <button className="px-5 py-2 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-orange-600 transition-all shadow-md">Approve to Agenda</button>
+                                </div>
+                            </div>
+                        </section>
+                    )}
 
                     {/* Dashboard Content - Stats */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -149,8 +214,6 @@ function Dashboard() {
                         ))}
                     </div>
 
-                    {/* Treasurer View Omitted for brevity, but could be added back */}
-
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                         <div className="lg:col-span-2 bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-6">
@@ -163,6 +226,50 @@ function Dashboard() {
                             <TransactionGraph data={dummyGraphData} />
                         </div>
                         <MinutesRegistry />
+                    </div>
+
+                    {/* My Market Listings */}
+                    <div className="mb-8">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">My Market Consignments</h2>
+                            <button onClick={fetchMyListings} className="text-xs font-bold text-[#2E7D64] uppercase tracking-widest hover:underline">Refresh</button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {myListings.length > 0 ? myListings.map((listing) => (
+                                <div key={listing.id} className="bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl p-6 shadow-sm group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h3 className="text-lg font-bold text-[#1E2933] dark:text-[#E2E8F0] group-hover:text-[#2E7D64] transition-colors">{listing.product_name}</h3>
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
+                                            listing.status === 'available' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                        }`}>
+                                            {listing.status.replace('_', ' ')}
+                                        </span>
+                                    </div>
+                                    <div className="space-y-2 mb-6">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-[#94A3B8]">Quantity:</span>
+                                            <span className="font-bold dark:text-[#E2E8F0]">{listing.quantity} {listing.unit}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-[#94A3B8]">Price:</span>
+                                            <span className="font-bold text-[#2E7D64]">KES {listing.price_per_unit} / {listing.unit}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-[#5A6B7A]">
+                                        {listing.warehouse_status ? (
+                                            <><CheckCircle size={14} className="text-green-500" /> In Warehouse</>
+                                        ) : (
+                                            <><Clock size={14} className="text-orange-500" /> Pending Delivery</>
+                                        )}
+                                    </div>
+                                </div>
+                            )) : (
+                                <div className="col-span-full py-12 text-center border-2 border-dashed border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl">
+                                    <Package size={48} className="mx-auto text-[#94A3B8] mb-4 opacity-20" />
+                                    <p className="text-[#5A6B7A] dark:text-[#94A3B8] font-bold italic">No active consignments.</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -232,7 +339,18 @@ function Dashboard() {
                 </div>
             )}
 
-            {/* Other modals omitted for brevity - same as before but styled better */}
+            {/* Consign Product Modal */}
+            {showConsignModal && (
+                <ConsignProductModal 
+                    onClose={() => setShowConsignModal(false)} 
+                    onSuccess={() => {
+                        setShowConsignModal(false);
+                        fetchMyListings();
+                    }} 
+                />
+            )}
+
+            <Footer />
         </div>
     );
 }
