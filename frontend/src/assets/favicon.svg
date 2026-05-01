@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" shape-rendering="geometricPrecision">
+  <!-- Flat-top hexagon -->
+  <polygon
+    points="16,1 29.5,8.5 29.5,23.5 16,31 2.5,23.5 2.5,8.5"
+    fill="#2E7D64"
+  />
+  <!-- Stylised W: three ascending bars forming a W glyph -->
+  <!-- Bar 1 (left) -->
+  <rect x="6.5" y="13" width="3" height="11" rx="0.8" fill="#FFFFFF"/>
+  <!-- Bar 2 (centre-left) -->
+  <rect x="11"  y="15.5" width="3" height="8.5" rx="0.8" fill="#FFFFFF"/>
+  <!-- Bar 3 (centre) -->
+  <rect x="15.5" y="11" width="3" height="13" rx="0.8" fill="#FFFFFF"/>
+  <!-- Bar 4 (centre-right) -->
+  <rect x="20" y="15.5" width="3" height="8.5" rx="0.8" fill="#FFFFFF"/>
+  <!-- Bar 5 (right) -->
+  <rect x="22.5" y="13" width="3" height="11" rx="0.8" fill="#FFFFFF"/>
+  <!-- Upward tick on centre bar -->
+  <polyline
+    points="17,11 17,7 20.5,9.5"
+    fill="none" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"
+  />
+</svg>

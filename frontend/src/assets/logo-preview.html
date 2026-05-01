@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>WEWSHG Logo Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Outfit', 'Trebuchet MS', sans-serif; background: #F8F9FA; color: #1E2933; }
+
+  header {
+    padding: 28px 40px 20px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex; align-items: center; gap: 12px;
+  }
+  header span { font-size: 13px; color: #5A6B7A; }
+  header strong { font-size: 14px; font-weight: 600; }
+
+  main { max-width: 860px; margin: 0 auto; padding: 48px 32px; display: grid; gap: 48px; }
+
+  section { display: grid; gap: 18px; }
+  h2 { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: #5A6B7A; }
+
+  /* LIGHT card */
+  .card-light {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 32px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 32px; flex-wrap: wrap;
+  }
+
+  /* DARK card */
+  .card-dark {
+    background: #0F1720;
+    border: 1px solid #2D3A4A;
+    border-radius: 12px;
+    padding: 32px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 32px; flex-wrap: wrap;
+  }
+
+  .size-label {
+    display: block;
+    font-size: 10px;
+    color: #94A3B8;
+    text-align: center;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .icon-col { display: flex; flex-direction: column; align-items: center; }
+
+  /* Usage table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #5A6B7A; padding: 0 12px 10px 0; }
+  td { padding: 9px 12px 9px 0; border-top: 1px solid #E2E8F0; color: #1E2933; vertical-align: top; }
+  td:last-child { color: #5A6B7A; font-size: 12px; }
+  code { background: #F0F4F8; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<header>
+  <!-- Inline favicon at header scale -->
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28">
+    <polygon points="16,1 29.5,8.5 29.5,23.5 16,31 2.5,23.5 2.5,8.5" fill="#2E7D64"/>
+    <rect x="6.5"  y="13" width="3" height="11" rx="0.8" fill="#fff"/>
+    <rect x="11"   y="15.5" width="3" height="8.5" rx="0.8" fill="#fff"/>
+    <rect x="15.5" y="11" width="3" height="13" rx="0.8" fill="#fff"/>
+    <rect x="20"   y="15.5" width="3" height="8.5" rx="0.8" fill="#fff"/>
+    <rect x="22.5" y="13" width="3" height="11" rx="0.8" fill="#fff"/>
+    <polyline points="17,11 17,7 20.5,9.5" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div>
+    <strong>WEWSHG Brand Assets</strong>
+    <span style="display:block">Wanguhu Estate Welfare Self Help Group</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO LIGHT -->
+  <section>
+    <h2>Hero Lockup — Light</h2>
+    <div class="card-light">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="420" height="90">
+        <defs>
+          <linearGradient id="hG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#34936F"/>
+            <stop offset="100%" stop-color="#235E4C"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(12,12) scale(0.8)">
+          <polygon points="60,6 110.8,33 110.8,87 60,114 9.2,87 9.2,33" fill="url(#hG)"/>
+          <rect x="31.5" y="56"  width="9" height="32" rx="2" fill="#fff"/>
+          <rect x="43.5" y="66"  width="9" height="22" rx="2" fill="#fff"/>
+          <rect x="55.5" y="50"  width="9" height="38" rx="2" fill="#fff"/>
+          <rect x="67.5" y="66"  width="9" height="22" rx="2" fill="#fff"/>
+          <rect x="79.5" y="56"  width="9" height="32" rx="2" fill="#fff"/>
+          <polyline points="60,50 60,36 68,43" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="31.5" y1="88" x2="88.5" y2="88" stroke="#fff" stroke-width="1.5" stroke-opacity=".45" stroke-linecap="round"/>
+        </g>
+        <line x1="114" y1="22" x2="114" y2="98" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text x="130" y="68" font-family="'Outfit','Trebuchet MS',sans-serif" font-size="38" font-weight="700" letter-spacing="-0.5">
+          <tspan fill="#2E7D64">WEW</tspan><tspan fill="#1E2933">SHG</tspan>
+        </text>
+        <text x="131" y="90" font-family="'Outfit','Trebuchet MS',sans-serif" font-size="11" font-weight="400" fill="#5A6B7A" letter-spacing="0.8">Wanguhu Estate Welfare · Self Help Group</text>
+        <rect x="131" y="97" width="58" height="14" rx="7" fill="#2E7D64" fill-opacity=".10"/>
+        <text x="160" y="108" font-family="'Outfit','Trebuchet MS',sans-serif" font-size="8.5" font-weight="600" fill="#2E7D64" text-anchor="middle" letter-spacing="0.4">Finance</text>
+        <rect x="195" y="97" width="76" height="14" rx="7" fill="#2E7D64" fill-opacity=".10"/>
+        <text x="233" y="108" font-family="'Outfit','Trebuchet MS',sans-serif" font-size="8.5" font-weight="600" fill="#2E7D64" text-anchor="middle" letter-spacing="0.4">E-Commerce</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- HERO DARK -->
+  <section>
+    <h2>Hero Lockup — Dark</h2>
+    <div class="card-dark">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="420" height="90">
+        <defs>
+          <linearGradient id="dG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3B8B76"/>
+            <stop offset="100%" stop-color="#2E7D64"/>
+          </linearGradient>
+        </defs>
+        <rect width="560" height="120" rx="12" fill="#1A2433"/>
+        <g transform="translate(12,12) scale(0.8)">
+          <polygon points="60,6 110.8,33 110.8,87 60,114 9.2,87 9.2,33" fill="url(#dG)"/>
+          <rect x="31.5" y="56"  width="9" height="32" rx="2" fill="#fff"/>
+          <rect x="43.5" y="66"  width="9" height="22" rx="2" fill="#fff"/>
+          <rect x="55.5" y="50"  width="9" height="38" rx="2" fill="#fff"/>
+          <rect x="67.5" y="66"  width="9" height="22" rx="2" fill="#fff"/>
+          <rect x="79.5" y="56"  width="9" height="32" rx="2" fill="#fff"/>
+          <polyline points="60,50 60,36 68,43" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="31.5" y1="88" x2="88.5" y2="88" stroke="#fff" stroke-width="1.5" stroke-opacity=".4" stroke-linecap="round"/>
+        </g>
+        <line x1="114" y1="22" x2="114" y2="98" stroke="#2D3A4A" stroke-width="1.5"/>
+        <text x="130" y="68" font-family="'Outfit','Trebuchet MS',sans-serif" font-size="38" font-weight="700" letter-spacing="-0.5">
+          <tspan fill="#3B8B76">WEW</tspan><tspan fill="#E2E8F0">SHG</tspan>
+        </text>
+        <text x="131" y="90" font-family="'Outfit','Trebuchet MS',sans-serif" font-size="11" font-weight="400" fill="#94A3B8" letter-spacing="0.8">Wanguhu Estate Welfare · Self Help Group</text>
+        <rect x="131" y="97" width="58" height="14" rx="7" fill="#3B8B76" fill-opacity=".18"/>
+        <text x="160" y="108" font-family="'Outfit','Trebuchet MS',sans-serif" font-size="8.5" font-weight="600" fill="#3B8B76" text-anchor="middle" letter-spacing="0.4">Finance</text>
+        <rect x="195" y="97" width="76" height="14" rx="7" fill="#3B8B76" fill-opacity=".18"/>
+        <text x="233" y="108" font-family="'Outfit','Trebuchet MS',sans-serif" font-size="8.5" font-weight="600" fill="#3B8B76" text-anchor="middle" letter-spacing="0.4">E-Commerce</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ICON MARKS -->
+  <section>
+    <h2>Icon Mark — Sizes</h2>
+    <div class="card-light">
+      <!-- 96px -->
+      <div class="icon-col">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="96" height="96">
+          <defs>
+            <linearGradient id="iG96" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#34936F"/>
+              <stop offset="100%" stop-color="#235E4C"/>
+            </linearGradient>
+          </defs>
+          <polygon points="60,6 110.8,33 110.8,87 60,114 9.2,87 9.2,33" fill="url(#iG96)"/>
+          <rect x="31.5" y="56"  width="9" height="32" rx="2" fill="#fff"/>
+          <rect x="43.5" y="66"  width="9" height="22" rx="2" fill="#fff"/>
+          <rect x="55.5" y="50"  width="9" height="38" rx="2" fill="#fff"/>
+          <rect x="67.5" y="66"  width="9" height="22" rx="2" fill="#fff"/>
+          <rect x="79.5" y="56"  width="9" height="32" rx="2" fill="#fff"/>
+          <polyline points="60,50 60,36 68,43" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="31.5" y1="88" x2="88.5" y2="88" stroke="#fff" stroke-width="1.5" stroke-opacity=".45" stroke-linecap="round"/>
+        </svg>
+        <span class="size-label">96px</span>
+      </div>
+      <!-- 48px -->
+      <div class="icon-col">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="48" height="48">
+          <defs>
+            <linearGradient id="iG48" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#34936F"/>
+              <stop offset="100%" stop-color="#235E4C"/>
+            </linearGradient>
+          </defs>
+          <polygon points="60,6 110.8,33 110.8,87 60,114 9.2,87 9.2,33" fill="url(#iG48)"/>
+          <rect x="31.5" y="56"  width="9" height="32" rx="2" fill="#fff"/>
+          <rect x="43.5" y="66"  width="9" height="22" rx="2" fill="#fff"/>
+          <rect x="55.5" y="50"  width="9" height="38" rx="2" fill="#fff"/>
+          <rect x="67.5" y="66"  width="9" height="22" rx="2" fill="#fff"/>
+          <rect x="79.5" y="56"  width="9" height="32" rx="2" fill="#fff"/>
+          <polyline points="60,50 60,36 68,43" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="31.5" y1="88" x2="88.5" y2="88" stroke="#fff" stroke-width="1.5" stroke-opacity=".45" stroke-linecap="round"/>
+        </svg>
+        <span class="size-label">48px</span>
+      </div>
+      <!-- Favicon 32px -->
+      <div class="icon-col">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+          <polygon points="16,1 29.5,8.5 29.5,23.5 16,31 2.5,23.5 2.5,8.5" fill="#2E7D64"/>
+          <rect x="6.5"  y="13" width="3" height="11" rx="0.8" fill="#fff"/>
+          <rect x="11"   y="15.5" width="3" height="8.5" rx="0.8" fill="#fff"/>
+          <rect x="15.5" y="11" width="3" height="13" rx="0.8" fill="#fff"/>
+          <rect x="20"   y="15.5" width="3" height="8.5" rx="0.8" fill="#fff"/>
+          <rect x="22.5" y="13" width="3" height="11" rx="0.8" fill="#fff"/>
+          <polyline points="17,11 17,7 20.5,9.5" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="size-label">32px (favicon)</span>
+      </div>
+      <!-- 16px -->
+      <div class="icon-col">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16">
+          <polygon points="16,1 29.5,8.5 29.5,23.5 16,31 2.5,23.5 2.5,8.5" fill="#2E7D64"/>
+          <rect x="6.5"  y="13" width="3" height="11" rx="0.8" fill="#fff"/>
+          <rect x="11"   y="15.5" width="3" height="8.5" rx="0.8" fill="#fff"/>
+          <rect x="15.5" y="11" width="3" height="13" rx="0.8" fill="#fff"/>
+          <rect x="20"   y="15.5" width="3" height="8.5" rx="0.8" fill="#fff"/>
+          <rect x="22.5" y="13" width="3" height="11" rx="0.8" fill="#fff"/>
+          <polyline points="17,11 17,7 20.5,9.5" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="size-label">16px</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- USAGE GUIDE -->
+  <section>
+    <h2>Usage Guide</h2>
+    <table>
+      <tr>
+        <th>File</th><th>Use case</th><th>Notes</th>
+      </tr>
+      <tr>
+        <td><code>favicon.svg</code></td>
+        <td>Browser tab, bookmarks, PWA</td>
+        <td>Also export as 32×32 PNG for legacy browsers</td>
+      </tr>
+      <tr>
+        <td><code>icon-mark.svg</code></td>
+        <td>App icon, profile avatar, social media</td>
+        <td>Square-safe — works in circular or rounded crops</td>
+      </tr>
+      <tr>
+        <td><code>logo-hero-light.svg</code></td>
+        <td>Navbar, letterhead, light backgrounds</td>
+        <td>560×120 viewBox, scales freely</td>
+      </tr>
+      <tr>
+        <td><code>logo-hero-dark.svg</code></td>
+        <td>Dark-mode navbar, dark splash screens</td>
+        <td>Includes #1A2433 background rect for image viewers</td>
+      </tr>
+    </table>
+  </section>
+
+</main>
+</body>
+</html>

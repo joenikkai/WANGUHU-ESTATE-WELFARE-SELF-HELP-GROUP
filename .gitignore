@@ -11,6 +11,9 @@ Thumbs.db
 desktop.ini
 $RECYCLE.BIN/
 
+plan
+
+
 # ===============================
 # Editor / IDE files
 # ===============================
@@ -97,7 +100,7 @@ tramp
 __pycache__/
 *.py[cod]
 *$py.class
-.env
+.env*
 .venv
 env/
 venv/

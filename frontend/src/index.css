@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* @custom-variant dark (&:where(.dark, .dark *)); */
+:root {
+  --bg: #F8F9FA;
+  --text: #1E2933;
+  --card-bg: #FFFFFF;
+  --border: #E2E8F0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0F1720;
+    --text: #E2E8F0;
+    --card-bg: #1A2433;
+    --border: #2D3A4A;
+  }
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  padding: 2rem;
+  transition: background-color 0.3s;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+*{font-family: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;}

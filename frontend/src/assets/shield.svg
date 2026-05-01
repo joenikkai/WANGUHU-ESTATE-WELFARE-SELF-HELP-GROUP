@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" shape-rendering="geometricPrecision">
+  <defs>
+    <!-- Subtle inner shadow on hex -->
+    <linearGradient id="hexGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#34936F"/>
+      <stop offset="100%" stop-color="#235E4C"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background square (transparent — remove fill for standalone) -->
+
+  <!-- Flat-top hexagon, centred in 120×120 -->
+  <!-- cx=60, cy=60, r=54 -->
+  <polygon
+    points="60,6 110.8,33 110.8,87 60,114 9.2,87 9.2,33"
+    fill="url(#hexGrad)"
+  />
+
+  <!-- Thin hex border for definition -->
+  <polygon
+    points="60,6 110.8,33 110.8,87 60,114 9.2,87 9.2,33"
+    fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-opacity="0.18"
+  />
+
+  <!-- === W glyph: five bars (heights rise-dip-rise-dip-rise) === -->
+  <!-- Each bar is a rounded rect; bars share a common baseline at y=88 -->
+  <!-- Heights: 32, 22, 38, 22, 32  (outer taller, inner shorter, centre tallest) -->
+  <!-- Bar width: 9  Gap: 3  Total span: 5*9+4*3 = 57  Start x: 60-28.5 = 31.5 -->
+
+  <!-- Bar 1 -->
+  <rect x="31.5" y="56"  width="9" height="32" rx="2" fill="#FFFFFF"/>
+  <!-- Bar 2 -->
+  <rect x="43.5" y="66"  width="9" height="22" rx="2" fill="#FFFFFF"/>
+  <!-- Bar 3 (centre / tallest) -->
+  <rect x="55.5" y="50"  width="9" height="38" rx="2" fill="#FFFFFF"/>
+  <!-- Bar 4 -->
+  <rect x="67.5" y="66"  width="9" height="22" rx="2" fill="#FFFFFF"/>
+  <!-- Bar 5 -->
+  <rect x="79.5" y="56"  width="9" height="32" rx="2" fill="#FFFFFF"/>
+
+  <!-- Upward arrow cap on the centre bar — signals growth -->
+  <polyline
+    points="60,50 60,36 68,43"
+    fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+  />
+
+  <!-- Thin horizontal "floor" line tying bars together -->
+  <line x1="31.5" y1="88" x2="88.5" y2="88" stroke="#FFFFFF" stroke-width="1.5" stroke-opacity="0.45" stroke-linecap="round"/>
+</svg>

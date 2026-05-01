@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <style>
+      /* Light mode (default) */
+      :root {
+        --shield-fill: #2E7D64;       /* accent-green */
+        --w-stroke: #FFFFFF;         /* white */
+        --dot-outer: #FFFFFF;
+        --dot-inner: #2E7D64;
+      }
+      /* Dark mode overrides */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --shield-fill: #1A2433;    /* dark surface */
+          --w-stroke: #3B8B76;       /* dark accent-green */
+          --dot-outer: #3B8B76;
+          --dot-inner: #1A2433;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Shield shape -->
+  <path d="M 64 8 L 116 40 L 116 80 C 116 114 64 126 64 126 
+           C 64 126 12 114 12 80 L 12 40 Z"
+        fill="var(--shield-fill)" 
+        stroke="var(--shield-fill)" stroke-width="6" stroke-linejoin="round" />
+
+  <!-- Rising "W" (growth / finance) -->
+  <path d="M 24 70 L 46 38 L 62 60 L 86 32 L 104 60" 
+        fill="none" stroke="var(--w-stroke)" 
+        stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Peak dot (digital / e‑commerce) -->
+  <circle cx="104" cy="60" r="7" fill="var(--dot-outer)" />
+  <circle cx="104" cy="60" r="3.5" fill="var(--dot-inner)" />
+</svg>
