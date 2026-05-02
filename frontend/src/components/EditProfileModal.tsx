@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ShieldCheck, Mail, Fingerprint, MapPin, Phone, User, CheckCircle2, Lock, Key } from 'lucide-react';
+import { X, ShieldCheck, Mail, Fingerprint, MapPin, Phone, User, CheckCircle2, Lock, Key, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface EditProfileModalProps {
@@ -13,6 +13,7 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [showSensitives, setShowSensitives] = useState(false);
 
     const [formData, setFormData] = useState({
         username: user?.username || '',
@@ -78,7 +79,7 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
                 <div className="bg-white dark:bg-[#1A2433] rounded-3xl p-8 text-center shadow-2xl scale-110 transition-transform">
                     <CheckCircle2 size={64} className="text-[#2E7D64] mx-auto mb-4" />
                     <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0]">Profile Secured!</h2>
-                    <p className="text-[#5A6B7A] dark:text-[#94A3B8] mt-2">Your data has been successfully updated.</p>
+                    <p className="text-[#5A6B7A] dark:textMapPin mt-2">Your data has been successfully updated.</p>
                 </div>
             </div>
         );
@@ -179,31 +180,66 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
                                         <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">Phone Number</label>
                                         <div className="relative">
                                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={16} />
-                                            <input type="text" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
+                                            <input 
+                                                type={showSensitives ? "text" : "password"} 
+                                                value={formData.phone_number} 
+                                                onChange={(e) => setFormData({...formData, phone_number: e.target.value})} 
+                                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" 
+                                                required 
+                                            />
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">National ID</label>
                                         <div className="relative">
                                             <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={16} />
-                                            <input type="text" value={formData.national_id} onChange={(e) => setFormData({...formData, national_id: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
+                                            <input 
+                                                type={showSensitives ? "text" : "password"} 
+                                                value={formData.national_id} 
+                                                onChange={(e) => setFormData({...formData, national_id: e.target.value})} 
+                                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" 
+                                                required 
+                                            />
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">KRA PIN</label>
                                         <div className="relative">
                                             <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={16} />
-                                            <input type="text" value={formData.kra_pin} onChange={(e) => setFormData({...formData, kra_pin: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
+                                            <input 
+                                                type={showSensitives ? "text" : "password"} 
+                                                value={formData.kra_pin} 
+                                                onChange={(e) => setFormData({...formData, kra_pin: e.target.value})} 
+                                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" 
+                                                required 
+                                            />
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="flex justify-end">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowSensitives(!showSensitives)}
+                                    className="flex items-center gap-2 text-[10px] font-black text-[#2E7D64] uppercase tracking-widest hover:underline"
+                                >
+                                    {showSensitives ? <EyeOff size={14} /> : <Eye size={14} />}
+                                    {showSensitives ? 'Hide Sensitive Data' : 'Show Sensitive Data'}
+                                </button>
                             </div>
 
                             <div>
                                 <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">Physical Address</label>
                                 <div className="relative">
                                     <MapPin className="absolute left-3 top-3 text-[#94A3B8]" size={16} />
-                                    <textarea rows={2} value={formData.physical_address} onChange={(e) => setFormData({...formData, physical_address: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
+                                    <textarea 
+                                        rows={2} 
+                                        value={showSensitives ? formData.physical_address : '••••••••••••••••'} 
+                                        onChange={(e) => setFormData({...formData, physical_address: e.target.value})}
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" 
+                                        required 
+                                    />
                                 </div>
                             </div>
 

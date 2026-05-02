@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import pool from '../config/db';
+import { logAudit } from '../utils/auditLogger';
 
 export const consignProduct = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
@@ -16,11 +17,15 @@ export const consignProduct = async (req: Request, res: Response): Promise<void>
     const license_permit = files['license_permit'] ? `http://localhost:5555/uploads/${files['license_permit'][0].filename}` : null;
 
     try {
-        await pool.query(
+        const result = await pool.query(
             `INSERT INTO market_listings (seller_id, name, category, description, price, quantity, unit, images, inspection_certificate, license_permit)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
             [seller_id, name, category, description, price, quantity, unit, JSON.stringify(images), inspection_certificate, license_permit]
         );
+        
+        const listingId = result.rows[0].id;
+        await logAudit(seller_id, 'CONSIGN_PRODUCT', 'market_listing', listingId, { name, price });
+
         res.status(201).json({ message: 'Product consigned successfully. Pending verification.' });
     } catch (err) {
         console.error(err);

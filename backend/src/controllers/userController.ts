@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-
 import pool from '../config/db';
 import fs from 'fs';
 import path from 'path';
-
+import { logAudit } from '../utils/auditLogger';
 import { mergeDuplicateImages, cleanupOrphanedImages } from '../utils/imageMaintenance';
 
 export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
@@ -43,11 +42,10 @@ export const updateProfilePicture = async (req: Request, res: Response): Promise
     }
 
     const userId = req.user.id;
-    const { profile_picture_data } = req.body; // Expecting base64 data from camera capture
+    const { profile_picture_data } = req.body;
 
     try {
         if (profile_picture_data) {
-            // Handle base64 camera capture
             const base64Data = profile_picture_data.replace(/^data:image\/\w+;base64,/, "");
             const fileName = `profile_${userId}_${Date.now()}.png`;
             const filePath = path.join(__dirname, '../../uploads', fileName);
@@ -57,7 +55,8 @@ export const updateProfilePicture = async (req: Request, res: Response): Promise
 
             await pool.query('UPDATE users SET profile_picture_url = $1 WHERE id = $2', [profile_picture_url, userId]);
             
-            // Immediate cleanup
+            await logAudit(userId, 'UPDATE_PROFILE_PICTURE', 'user', userId, { method: 'camera' });
+
             await mergeDuplicateImages();
             await cleanupOrphanedImages();
 
@@ -88,7 +87,8 @@ export const updateProfilePictureFromUpload = async (req: Request, res: Response
     try {
         await pool.query('UPDATE users SET profile_picture_url = $1 WHERE id = $2', [profile_picture_url, userId]);
         
-        // Immediate cleanup
+        await logAudit(userId, 'UPDATE_PROFILE_PICTURE', 'user', userId, { method: 'upload' });
+
         await mergeDuplicateImages();
         await cleanupOrphanedImages();
 
@@ -119,7 +119,8 @@ export const removeProfilePicture = async (req: Request, res: Response): Promise
             }
         }
 
-        await pool.query('UPDATE users SET profile_picture_url = NULL WHERE id = $2', [null, userId]);
+        await pool.query('UPDATE users SET profile_picture_url = NULL WHERE id = $1', [userId]);
+        await logAudit(userId, 'REMOVE_PROFILE_PICTURE', 'user', userId);
         res.json({ message: 'Profile picture removed successfully' });
     } catch (err) {
         console.error(err);
@@ -141,17 +142,14 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     try {
         await client.query('BEGIN');
 
-        // Update username in users table
         await client.query(
             'UPDATE users SET username = $1 WHERE id = $2',
             [username, userId]
         );
 
-        // Get person_id
         const userRes = await client.query('SELECT person_id FROM users WHERE id = $1', [userId]);
         const personId = userRes.rows[0].person_id;
 
-        // Update persons table
         await client.query(
             `UPDATE persons 
              SET full_name = $1, email = $2, phone_number = $3, physical_address = $4, national_id = $5, kra_pin = $6 
@@ -161,7 +159,8 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 
         await client.query('COMMIT');
 
-        // Fetch updated user data
+        await logAudit(userId, 'UPDATE_PROFILE', 'user', userId, { changed_fields: Object.keys(req.body) });
+
         const updatedUser = await client.query(
             `SELECT u.id, u.username, u.role, u.title, u.profile_picture_url,
              p.full_name, p.email, p.phone_number, p.physical_address, p.national_id, p.kra_pin
