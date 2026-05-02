@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { X, ShieldCheck, Mail, Fingerprint, MapPin, Phone, User, CheckCircle2, Lock, Key } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
 
 interface EditProfileModalProps {
     onClose: () => void;
 }
 
 const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
-    const { user, updateProfile, removeProfilePicture } = useAuth();
+    const { user, updateProfile, removeProfilePicture, passkeyRegister } = useAuth();
     const [step, setStep] = useState<'mfa' | 'form'>('mfa');
     const [mfaCode, setMfaCode] = useState('');
     const [loading, setLoading] = useState(false);
@@ -65,6 +64,14 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
         }
     };
 
+    const handleRegisterPasskey = async () => {
+        try {
+            await passkeyRegister();
+        } catch (err: any) {
+            alert(err.message);
+        }
+    };
+
     if (success) {
         return (
             <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[150] backdrop-blur-md">
@@ -91,7 +98,7 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
                         </div>
                         <h2 className="text-2xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-2">Security Verification</h2>
                         <p className="text-sm text-[#5A6B7A] dark:text-[#94A3B8] mb-8 px-6">
-                            To protect your sensitive information, please enter the 6-digit MFA code sent to your registered phone ending in <strong>{user?.phone_number.slice(-4)}</strong>.
+                            To protect your sensitive information, please enter the 6-digit MFA code sent to your registered phone ending in <strong>{user?.phone_number?.slice(-4) || 'XXXX'}</strong>.
                         </p>
 
                         <form onSubmit={handleMfaSubmit} className="space-y-6">
@@ -191,21 +198,54 @@ const EditProfileModal = ({ onClose }: EditProfileModalProps) => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-widest mb-1">Physical Address</label>
                                 <div className="relative">
-                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={16} />
-                                    <input type="text" value={formData.physical_address} onChange={(e) => setFormData({...formData, physical_address: e.target.value})} placeholder="Section, House No." className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" />
+                                    <MapPin className="absolute left-3 top-3 text-[#94A3B8]" size={16} />
+                                    <textarea rows={2} value={formData.physical_address} onChange={(e) => setFormData({...formData, physical_address: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1720] border rounded-xl outline-none focus:ring-2 focus:ring-[#2E7D64]" required />
                                 </div>
                             </div>
 
-                            <div className="pt-4 border-t border-[#E2E8F0] dark:border-[#2D3A4A] flex gap-4">
-                                <button type="button" onClick={onClose} className="flex-1 py-4 bg-gray-100 dark:bg-slate-800 text-[#1E2933] dark:text-[#E2E8F0] rounded-2xl font-black">Cancel</button>
-                                <button type="submit" disabled={loading} className="flex-2 py-4 bg-[#2E7D64] text-white rounded-2xl font-black shadow-xl hover:bg-[#256652] transition-all">
-                                    {loading ? 'Saving...' : 'Save Changes'}
-                                </button>
+                            <div className="pt-4 border-t border-[#E2E8F0] dark:border-[#2D3A4A]">
+                                <h3 className="text-sm font-black text-[#1E2933] dark:text-[#E2E8F0] mb-4 flex items-center gap-2">
+                                    <ShieldCheck size={18} className="text-[#2E7D64]" />
+                                    Security & Linked Accounts
+                                </h3>
+                                <div className="p-4 bg-gray-50 dark:bg-[#0F1720] rounded-2xl border border-dashed border-[#2E7D64] flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg text-[#2E7D64]">
+                                            <Fingerprint size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-[#1E2933] dark:text-[#E2E8F0]">Biometric Passkey</p>
+                                            <p className="text-[10px] text-[#5A6B7A]">Enable passwordless login for this device</p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={handleRegisterPasskey}
+                                        className="px-4 py-2 bg-[#2E7D64] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#256652] transition-all shadow-md"
+                                    >
+                                        Register
+                                    </button>
+                                </div>
                             </div>
+
+                            {error && <p className="text-red-500 text-xs font-bold text-center">{error}</p>}
+
+                            <button 
+                                type="submit" 
+                                disabled={loading}
+                                className="w-full py-4 bg-[#2E7D64] text-white rounded-2xl font-black text-lg hover:bg-[#256652] transition-all shadow-xl flex items-center justify-center gap-3"
+                            >
+                                {loading ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                        Saving Changes...
+                                    </>
+                                ) : 'Secure & Save Profile'}
+                            </button>
                         </form>
                     </div>
                 )}

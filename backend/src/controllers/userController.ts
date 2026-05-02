@@ -1,12 +1,42 @@
-import { Response } from 'express';
-import { AuthRequest } from '../middleware/authMiddleware';
+import { Request, Response } from 'express';
+
 import pool from '../config/db';
 import fs from 'fs';
 import path from 'path';
 
 import { mergeDuplicateImages, cleanupOrphanedImages } from '../utils/imageMaintenance';
 
-export const updateProfilePicture = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+
+    const userId = req.user.id;
+
+    try {
+        const result = await pool.query(
+            `SELECT u.id, u.username, u.role, u.title, u.profile_picture_url, u.personal_balance,
+             p.full_name, p.email, p.phone_number, p.physical_address, p.national_id, p.kra_pin
+             FROM users u
+             JOIN persons p ON u.person_id = p.id
+             WHERE u.id = $1`,
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error while fetching user' });
+    }
+};
+
+export const updateProfilePicture = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
@@ -41,7 +71,7 @@ export const updateProfilePicture = async (req: AuthRequest, res: Response): Pro
     }
 };
 
-export const updateProfilePictureFromUpload = async (req: AuthRequest, res: Response): Promise<void> => {
+export const updateProfilePictureFromUpload = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
@@ -69,7 +99,7 @@ export const updateProfilePictureFromUpload = async (req: AuthRequest, res: Resp
     }
 };
 
-export const removeProfilePicture = async (req: AuthRequest, res: Response): Promise<void> => {
+export const removeProfilePicture = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
@@ -97,7 +127,7 @@ export const removeProfilePicture = async (req: AuthRequest, res: Response): Pro
     }
 };
 
-export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
         res.status(401).json({ message: 'Unauthorized' });
         return;

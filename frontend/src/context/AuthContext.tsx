@@ -1,5 +1,11 @@
 import { createContext, type ReactNode, useContext, useState, useEffect } from "react";
 import axios from 'axios';
+import { 
+    startRegistration, 
+    startAuthentication 
+} from '@simplewebauthn/browser';
+
+axios.defaults.withCredentials = true;
 
 type Role = "admin" | "board_member" | "member" | "guest";
 
@@ -37,12 +43,15 @@ type AuthContextType = {
     removeProfilePicture: () => Promise<void>;
     updateProfile: (formData: any) => Promise<any>;
     setUser: (user: User | null) => void;
+    setToken: (token: string | null) => void;
     loading: boolean;
+    passkeyRegister: () => Promise<void>;
+    passkeyLogin: (identifier: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = 'http://localhost:5555/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5555/api';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -61,20 +70,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await axios.post(`${API_URL}/auth/login`, { email, password });
             const { token, user } = response.data;
-            setToken(token);
-            setUser(user);
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
+            handleAuthSuccess(token, user);
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Login failed');
         }
     };
 
+    const handleAuthSuccess = (token: string, user: User) => {
+        setToken(token);
+        setUser(user);
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+    };
+
+    const passkeyRegister = async () => {
+        if (!token) return;
+        try {
+            const optionsResponse = await axios.get(`${API_URL}/passkeys/register-options`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const attestationResponse = await startRegistration({ optionsJSON: optionsResponse.data });
+            await axios.post(`${API_URL}/passkeys/register-verify`, attestationResponse, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            alert("Passkey registered successfully!");
+        } catch (error: any) {
+            console.error(error);
+            throw new Error(error.message || 'Passkey registration failed');
+        }
+    };
+
+    const passkeyLogin = async (identifier: string) => {
+        try {
+            const optionsResponse = await axios.get(`${API_URL}/passkeys/login-options?identifier=${identifier}`);
+            const assertionResponse = await startAuthentication({ optionsJSON: optionsResponse.data });
+            const verifyResponse = await axios.post(`${API_URL}/passkeys/login-verify`, assertionResponse);
+            const { token, user } = verifyResponse.data;
+            handleAuthSuccess(token, user);
+        } catch (error: any) {
+            console.error(error);
+            throw new Error(error.message || 'Passkey login failed');
+        }
+    };
+
     const register = async (details: any) => {
         try {
-            const response = await axios.post(`${API_URL}/auth/register`, details);
-            // If registration includes immediate capture, we might want to handle it.
-            // But for now, just register.
+            await axios.post(`${API_URL}/auth/register`, details);
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Registration failed');
         }
@@ -148,7 +189,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout, updateProfilePicture, removeProfilePicture, updateProfile, setUser, loading }}>
+        <AuthContext.Provider value={{ 
+            user, token, login, register, logout, 
+            updateProfilePicture, removeProfilePicture, 
+            updateProfile, setUser, setToken, loading,
+            passkeyRegister, passkeyLogin
+        }}>
             {children}
         </AuthContext.Provider>
     );
@@ -159,4 +205,3 @@ export const useAuth = () => {
     if (!context) throw new Error("useAuth must be used within an AuthProvider");
     return context;
 };
-

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
-import path from 'path';
 import { 
+    getCurrentUser,
     updateProfilePicture, 
     updateProfilePictureFromUpload, 
     removeProfilePicture, 
@@ -22,6 +22,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+router.get('/me', authenticateToken, getCurrentUser);
 router.post('/profile-picture', authenticateToken, updateProfilePicture);
 router.post('/profile-picture-upload', authenticateToken, upload.single('profile_picture'), updateProfilePictureFromUpload);
 router.delete('/profile-picture', authenticateToken, removeProfilePicture);
