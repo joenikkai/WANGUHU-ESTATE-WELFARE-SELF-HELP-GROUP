@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import marketplaceRoutes from './routes/marketplaceRoutes';
 import passkeyRoutes from './routes/passkeyRoutes';
+import financeRoutes from './routes/financeRoutes';
 import { mergeDuplicateImages, cleanupOrphanedImages } from './utils/imageMaintenance';
 
 const app = express();
@@ -48,6 +49,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/passkeys', passkeyRoutes);
+app.use('/api/finance', financeRoutes);
 
 app.get('/api/greeting', async (req, res) => {
   try {

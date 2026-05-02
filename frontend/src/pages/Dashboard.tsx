@@ -2,11 +2,9 @@ import { useAuth } from "../context/AuthContext";
 import { useState, useEffect, useRef } from "react";
 import DashboardSidebar from "../components/Navbar";
 import Footer from "../components/Footer";
-import Shield from "../components/Shield";
 import MinutesRegistry from "../components/MinutesRegistry";
 import TransactionGraph from "../components/TransactionGraph";
-import ConsignProductModal from "../components/ConsignProductModal";
-import { Camera, Eye, EyeOff, Upload, X, Package, CheckCircle, Clock, TrendingUp, ShieldCheck, Receipt, Building2 } from "lucide-react";
+import { Camera, Eye, EyeOff, Package, TrendingUp, ShieldCheck, Receipt, Building2 } from "lucide-react";
 import { useOnlineStatus, useOfflineSync } from "../context/SyncContext";
 import axios from 'axios';
 
@@ -17,44 +15,34 @@ function Dashboard() {
     
     const [showSensitives, setShowSensitives] = useState(false);
     const [selectedPool, setSelectedPool] = useState('Personal Balance');
-    const [showBenevolenceModal, setShowBenevolenceModal] = useState(false);
-    const [showContributeModal, setShowContributeModal] = useState(false);
-    const [showConsignModal, setShowConsignModal] = useState(false);
     const [showProfileModal, setShowProfileModal] = useState(false);
-    const [myListings, setMyListings] = useState<any[]>([]);
-    const [uptime, setUptime] = useState("00:00:00");
+    
+    const [liveData, setLiveData] = useState<{
+        transactions: any[],
+        assets: any[],
+        pools: any[] | null,
+        stats: { mandatory_total: number, benevolence_total: number }
+    } | null>(null);
 
     // Camera Refs
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const fetchMyListings = async () => {
+    const fetchDashboardData = async () => {
         if (!token) return;
         try {
-            const response = await axios.get('http://localhost:5555/api/marketplace/my-listings', {
+            const response = await axios.get('http://localhost:5555/api/finance/dashboard', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setMyListings(response.data);
+            setLiveData(response.data);
         } catch (err) {
-            console.error("Failed to fetch listings", err);
+            console.error("Failed to fetch dashboard data", err);
         }
     };
 
     useEffect(() => {
-        fetchMyListings();
-        if (user?.role === 'admin') {
-            const startTime = Date.now() - Math.random() * 10000000;
-            const interval = setInterval(() => {
-                const diff = Date.now() - startTime;
-                const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
-                const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-                const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-                setUptime(`${hours}:${minutes}:${seconds}`);
-            }, 1000);
-            return () => clearInterval(interval);
-        }
+        fetchDashboardData();
     }, [user, token]);
 
     const handleAction = (action: string, payload: any) => {
@@ -101,36 +89,21 @@ function Dashboard() {
         }
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            await updateProfilePicture(e.target.files[0]);
-            setShowProfileModal(false);
-        }
-    };
-
     const firstName = user?.full_name?.split(' ')[0] || 'Member';
     const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
     const isChairman = user?.title === 'Chairperson' || user?.role === 'admin';
 
-    // Simulated Financial Data
+    // Simulated Financial Data for History (until backend supports historical range)
     const dummyGraphData = {
-        'Personal Balance': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: Math.floor(Math.random() * 5000) + 1000, type: 'balance' })),
-        'Mandatory Fund Contribution': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: 3000, type: 'mandatory' })),
-        'Benevolence Fund': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: Math.floor(Math.random() * 500) + 50, type: 'benevolence' })),
-        'Asset Shares': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: Math.floor(Math.random() * 100) + 10, type: 'assets' }))
+        'Personal Balance': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: (user?.personal_balance || 0) + Math.floor(Math.random() * 500), type: 'balance' })),
+        'Mandatory Fund Contribution': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: parseFloat(liveData?.stats?.mandatory_total as any || 0), type: 'mandatory' })),
+        'Benevolence Fund': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: parseFloat(liveData?.stats?.benevolence_total as any || 0), type: 'benevolence' })),
+        'Asset Shares': Array.from({ length: 15 }, (_, i) => ({ date: `May ${i + 1}`, amount: (liveData?.assets?.length || 0) * 10, type: 'assets' }))
     };
 
-    const dummyAssets = [
-        { id: 1, name: 'Sector A Land', share: '2.1%', value: 'KES 450,000' },
-        { id: 2, name: 'Communal Tractor', share: '4.5%', value: 'KES 120,000' },
-        { id: 3, name: 'Water Pump B', share: '10.0%', value: 'KES 25,000' }
-    ];
-
-    const dummyTransactions = [
-        { id: 1, type: 'Contribution', amount: 'KES 3,000', date: 'May 10', status: 'Completed' },
-        { id: 2, type: 'Withdrawal', amount: 'KES −1,500', date: 'May 08', status: 'Completed' },
-        { id: 3, type: 'Mandatory Fee', amount: 'KES 1,000', date: 'May 01', status: 'Completed' }
-    ];
+    const transactions = liveData?.transactions || [];
+    const assets = liveData?.assets || [];
+    const pools = liveData?.pools || [];
 
     return (
         <div className="min-h-screen flex bg-[#F8F9FA] dark:bg-[#0F1720]">
@@ -159,11 +132,11 @@ function Dashboard() {
                                 </div>
                             </div>
                             <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-                                <button onClick={() => setShowConsignModal(true)} className="flex-1 sm:flex-none px-6 py-2.5 bg-orange-500 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-orange-600 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                                <button className="flex-1 sm:flex-none px-6 py-2.5 bg-orange-500 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-orange-600 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
                                     <Package size={18} />
                                     Post Product
                                 </button>
-                                <button onClick={() => setShowContributeModal(true)} className="flex-1 sm:flex-none px-6 py-2.5 bg-[#2E7D64] text-white rounded-xl font-bold text-sm shadow-lg hover:bg-[#256652] transition-all transform hover:-translate-y-0.5">Quick Contribute</button>
+                                <button className="flex-1 sm:flex-none px-6 py-2.5 bg-[#2E7D64] text-white rounded-xl font-bold text-sm shadow-lg hover:bg-[#256652] transition-all transform hover:-translate-y-0.5">Quick Contribute</button>
                                 <button onClick={() => setShowSensitives(!showSensitives)} className="p-2.5 border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
                                     {showSensitives ? <EyeOff size={20} className="text-[#5A6B7A]" /> : <Eye size={20} className="text-[#5A6B7A]" />}
                                 </button>
@@ -186,28 +159,19 @@ function Dashboard() {
                                     <div className="text-right">
                                         <span className="text-[10px] text-[#5A6B7A] font-black uppercase tracking-[0.2em] block mb-1">Consolidated Capital ∑</span>
                                         <span className="text-2xl font-black text-[#2E7D64] dark:text-[#3B8B76]">
-                                            {showSensitives ? 'KES ••••••••' : 'KES 8,450,000.00'}
+                                            {showSensitives ? 'KES ••••••••' : `KES ${(pools.reduce((acc, p) => acc + parseFloat(p.balance), 0)).toLocaleString()}`}
                                         </span>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {[
-                                        { label: 'Benevolence Pool ∑', value: 'KES 245K', color: 'blue', width: '65%' },
-                                        { label: 'Asset Growth ∑', value: 'KES 6.2M', color: 'orange', width: '82%' },
-                                        { label: 'Operating Fund ∑', value: 'KES 2.0M', color: 'green', width: '45%' },
-                                        { label: 'Pending Pledges ∑', value: 'KES 112K', color: 'purple', width: '30%' },
-                                    ].map((box, i) => (
+                                    {pools.map((pool, i) => (
                                         <div key={i} className="p-6 bg-[#F8F9FA] dark:bg-[#0F1720] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-3xl group hover:border-[#2E7D64] transition-all">
-                                            <p className="text-[11px] font-black text-[#475569] dark:text-[#94A3B8] uppercase tracking-widest mb-2">{box.label}</p>
+                                            <p className="text-[11px] font-black text-[#475569] dark:text-[#94A3B8] uppercase tracking-widest mb-2">{pool.name} Pool ∑</p>
                                             <p className="text-3xl font-black text-[#1E2933] dark:text-[#E2E8F0]">
-                                                {showSensitives ? 'KES •••' : box.value}
+                                                {showSensitives ? 'KES •••' : `KES ${parseFloat(pool.balance).toLocaleString()}`}
                                             </p>
                                             <div className="mt-4 h-1.5 w-full bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                                                <div className={`h-full w-[${box.width}] ${
-                                                    box.color === 'blue' ? 'bg-blue-500' : 
-                                                    box.color === 'orange' ? 'bg-orange-500' : 
-                                                    box.color === 'green' ? 'bg-green-500' : 'bg-purple-500'
-                                                }`}></div>
+                                                <div className={`h-full bg-[#2E7D64]`} style={{ width: '50%' }}></div>
                                             </div>
                                         </div>
                                     ))}
@@ -237,10 +201,10 @@ function Dashboard() {
                         {/* Dashboard Content - Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             {[
-                                { label: 'Personal Balance ∑', value: `KES ${user?.personal_balance?.toLocaleString() || '12,450'}`, trend: 'Δ ▲ +2.4%', color: 'blue' },
-                                { label: 'Mandatory Contribution Fund ∑', value: 'KES 45,000', trend: 'Δ Stable', color: 'green' },
-                                { label: 'Benevolence Fund ∑', value: 'KES 2,500', trend: 'Δ ▲ +5.2%', color: 'orange' },
-                                { label: 'Asset Shares ∑', value: '1,240 Units', trend: 'Δ ▲ +12%', color: 'purple' },
+                                { label: 'Personal Balance ∑', value: `KES ${user?.personal_balance?.toLocaleString() || '0'}`, trend: 'Δ ▲ +0.0%', color: 'blue' },
+                                { label: 'Mandatory Contribution Fund ∑', value: `KES ${parseFloat(liveData?.stats?.mandatory_total as any || 0).toLocaleString()}`, trend: 'Δ Live', color: 'green' },
+                                { label: 'Benevolence Fund ∑', value: `KES ${parseFloat(liveData?.stats?.benevolence_total as any || 0).toLocaleString()}`, trend: 'Δ Live', color: 'orange' },
+                                { label: 'Asset Shares ∑', value: `${assets.length} Assets`, trend: `Δ ${assets.filter(a => a.is_communal).length} Communal`, color: 'purple' },
                             ].map((stat, i) => {
                                 const colorMap: { [key: string]: string } = {
                                     blue: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20',
@@ -305,7 +269,7 @@ function Dashboard() {
                             </div>
                         </div>
 
-                        {/* New Data Sections: Assets & Transactions */}
+                        {/* Live Data Sections: Assets & Transactions */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                             {/* Transactions Table */}
                             <div className="bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-[2.5rem] p-8">
@@ -314,22 +278,24 @@ function Dashboard() {
                                     Recent Transactions
                                 </h2>
                                 <div className="space-y-4">
-                                    {dummyTransactions.map(tx => (
+                                    {transactions.length > 0 ? transactions.map((tx: any) => (
                                         <div key={tx.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#0F1720] rounded-2xl border border-transparent hover:border-[#2E7D64] transition-all">
                                             <div className="flex items-center gap-4">
-                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.amount.includes('−') ? 'bg-red-50 text-red-500' : 'bg-green-50 text-[#2E7D64]'}`}>
-                                                    <TrendingUp size={18} className={tx.amount.includes('−') ? 'rotate-180' : ''} />
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${parseFloat(tx.amount) < 0 ? 'bg-red-50 text-red-500' : 'bg-green-50 text-[#2E7D64]'}`}>
+                                                    <TrendingUp size={18} className={parseFloat(tx.amount) < 0 ? 'rotate-180' : ''} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-[#1E2933] dark:text-[#E2E8F0]">{tx.type}</p>
-                                                    <p className="text-[10px] text-[#5A6B7A]">{tx.date} • {tx.status}</p>
+                                                    <p className="text-sm font-bold text-[#1E2933] dark:text-[#E2E8F0]">{tx.type.replace('_', ' ').toUpperCase()}</p>
+                                                    <p className="text-[10px] text-[#5A6B7A]">{new Date(tx.date).toLocaleDateString()} • {tx.status}</p>
                                                 </div>
                                             </div>
-                                            <p className={`font-black ${tx.amount.includes('−') ? 'text-red-500' : 'text-[#2E7D64]'}`}>
-                                                {showSensitives ? 'KES •••' : tx.amount}
+                                            <p className={`font-black ${parseFloat(tx.amount) < 0 ? 'text-red-500' : 'text-[#2E7D64]'}`}>
+                                                {showSensitives ? 'KES •••' : `KES ${Math.abs(parseFloat(tx.amount)).toLocaleString()}`}
                                             </p>
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <p className="text-center text-[#5A6B7A] text-sm py-10">No recent transactions found.</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -340,17 +306,19 @@ function Dashboard() {
                                     Asset Portfolio
                                 </h2>
                                 <div className="space-y-4">
-                                    {dummyAssets.map(asset => (
+                                    {assets.length > 0 ? assets.map((asset: any) => (
                                         <div key={asset.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#0F1720] rounded-2xl border border-transparent hover:border-purple-200 transition-all">
                                             <div>
                                                 <p className="text-sm font-bold text-[#1E2933] dark:text-[#E2E8F0]">{asset.name}</p>
-                                                <p className="text-[10px] text-[#5A6B7A]">Community Stake: {asset.share}</p>
+                                                <p className="text-[10px] text-[#5A6B7A]">{asset.is_communal ? 'Communal Asset' : 'Personal Asset'} • {asset.type}</p>
                                             </div>
                                             <p className="font-black text-purple-500">
-                                                {showSensitives ? 'KES •••' : asset.value}
+                                                {showSensitives ? 'KES •••' : `KES ${parseFloat(asset.value).toLocaleString()}`}
                                             </p>
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <p className="text-center text-[#5A6B7A] text-sm py-10">No assets listed.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
