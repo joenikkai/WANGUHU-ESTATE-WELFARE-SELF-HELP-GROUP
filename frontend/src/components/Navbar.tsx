@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import EditProfileModal from './EditProfileModal';
+import { API_URL } from '../utils/api';
 
 const DashboardSidebar = () => {
   const { user, logout, token } = useAuth();
@@ -54,7 +55,7 @@ const DashboardSidebar = () => {
     e.preventDefault();
     try {
         // Real password check via login endpoint (dry run)
-        await axios.post('http://localhost:5555/api/auth/login', {
+        await axios.post(`${API_URL}/auth/login`, {
             email: user?.email,
             password: passwordInput
         });

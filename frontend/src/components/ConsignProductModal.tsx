@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Upload, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../utils/api';
 
 interface ConsignProductModalProps {
     onClose: () => void;
@@ -46,7 +47,7 @@ const ConsignProductModal = ({ onClose, onSuccess }: ConsignProductModalProps) =
         if (files.license_permit) data.append('license_permit', files.license_permit);
 
         try {
-            await axios.post('http://localhost:5555/api/marketplace/consign', data, {
+            await axios.post(`${API_URL}/marketplace/consign`, data, {
                 headers: { 
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'

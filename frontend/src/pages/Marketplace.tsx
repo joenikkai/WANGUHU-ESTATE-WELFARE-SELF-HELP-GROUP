@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PublicNavbar from '../components/PublicNavbar';
 import Footer from '../components/Footer';
 import axios from 'axios';
+import { API_URL } from '../utils/api';
 import { Package, ShieldCheck, ShoppingCart, Search, Filter, FileText, X } from 'lucide-react';
 
 const Marketplace = () => {
@@ -12,7 +13,7 @@ const Marketplace = () => {
 
     const fetchListings = async () => {
         try {
-            const response = await axios.get('http://localhost:5555/api/marketplace/public');
+            const response = await axios.get(`${API_URL}/marketplace/public`);
             setListings(response.data);
         } catch (err) {
             console.error("Failed to fetch listings", err);

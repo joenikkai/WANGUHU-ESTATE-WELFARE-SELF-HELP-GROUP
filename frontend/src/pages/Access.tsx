@@ -5,8 +5,7 @@ import { Camera, Shield, X, Fingerprint, Globe } from 'lucide-react';
 import eyeIcon from '../assets/eye-svgrepo-com.svg';
 import eyeOffIcon from '../assets/eye-off-svgrepo-com.svg';
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5555/api';
+import { API_URL } from '../utils/api';
 
 function SocialLogins() {
     const handleSocialLogin = (provider: string) => {

@@ -7,6 +7,7 @@ import TransactionGraph from "../components/TransactionGraph";
 import { Camera, Eye, EyeOff, Package, TrendingUp, ShieldCheck, Receipt, Building2, Plus, X, CreditCard } from "lucide-react";
 import { useOnlineStatus, useOfflineSync } from "../context/SyncContext";
 import axios from 'axios';
+import { API_URL } from "../utils/api";
 
 function Dashboard() {
     const { user, token, updateProfilePicture, setUser } = useAuth();
@@ -34,13 +35,13 @@ function Dashboard() {
     const fetchDashboardData = async () => {
         if (!token) return;
         try {
-            const response = await axios.get('http://localhost:5555/api/finance/dashboard', {
+            const response = await axios.get(`${API_URL}/finance/dashboard`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLiveData(response.data);
             
             // Also refresh current user data (for balance)
-            const userResponse = await axios.get('http://localhost:5555/api/users/me', {
+            const userResponse = await axios.get(`${API_URL}/users/me`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUser(userResponse.data);
@@ -400,7 +401,7 @@ function QuickContributeModal({ onClose, onSuccess, token }: { onClose: () => vo
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post('http://localhost:5555/api/finance/contribute', {
+            await axios.post(`${API_URL}/finance/contribute`, {
                 amount: parseFloat(amount),
                 category,
                 payment_method: paymentMethod,

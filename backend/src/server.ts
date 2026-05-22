@@ -14,7 +14,7 @@ import financeRoutes from './routes/financeRoutes';
 import { mergeDuplicateImages, cleanupOrphanedImages } from './utils/imageMaintenance';
 
 const app = express();
-const PORT = 5555;
+const PORT = process.env.PORT || 5555;
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -38,11 +38,14 @@ app.use(session({
 app.use(passport.initialize());
 
 // Periodic Maintenance: Every day at midnight
-cron.schedule('0 0 * * *', async () => {
-  console.log('Running daily image maintenance...');
-  await mergeDuplicateImages();
-  await cleanupOrphanedImages();
-});
+// Note: On Vercel, use Vercel Cron Jobs instead of node-cron
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  cron.schedule('0 0 * * *', async () => {
+    console.log('Running daily image maintenance...');
+    await mergeDuplicateImages();
+    await cleanupOrphanedImages();
+  });
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -61,6 +64,10 @@ app.get('/api/greeting', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend server running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Backend server running at http://localhost:${PORT}`);
+  });
+}
+
+export default app;
