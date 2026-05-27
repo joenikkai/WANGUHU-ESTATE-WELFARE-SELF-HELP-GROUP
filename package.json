@@ -6,9 +6,10 @@
     "backend"
   ],
   "scripts": {
-    "build:frontend": "npm run build --workspace=frontend",
-    "build:backend": "npm run build --workspace=backend",
-    "build": "npm run build:backend && npm run build:frontend",
+    /*"build:frontend": "npm run build --workspace=frontend",*/
+    /*"build:backend": "npm run build --workspace=backend",*/
+    /*"build": "npm run build:backend && npm run build:frontend",*/
+    "build":"vite build",
     "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "install-all": "npm install && npm install --workspace=frontend && npm install --workspace=backend"
   },
