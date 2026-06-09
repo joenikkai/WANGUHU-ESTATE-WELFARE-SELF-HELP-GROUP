@@ -179,3 +179,18 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         client.release();
     }
 };
+
+export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const result = await pool.query(
+            `SELECT u.id, u.username, p.full_name 
+             FROM users u 
+             JOIN persons p ON u.person_id = p.id 
+             ORDER BY p.full_name ASC`
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error while fetching users' });
+    }
+};

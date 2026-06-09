@@ -15,6 +15,7 @@ import AboutUs from "./pages/About Us";
 import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import StockHub from "./pages/StockHub";
+import Contribute from "./pages/Contribute";
 
 const router = createBrowserRouter([
   {
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
       {
         path: '/stocks',
         element: <StockHub/>
+      },
+      {
+        path: '/contribute',
+        element: <Contribute/>
       }
     ]
   },

@@ -5,9 +5,10 @@ import {
     updateProfilePicture, 
     updateProfilePictureFromUpload, 
     removeProfilePicture, 
-    updateProfile 
+    updateProfile,
+    getAllUsers
 } from '../controllers/userController';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware';
 
 const router = Router();
 
@@ -23,6 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.get('/me', authenticateToken, getCurrentUser);
+router.get('/', authenticateToken, authorizeRoles('board_member', 'admin'), getAllUsers);
 router.post('/profile-picture', authenticateToken, updateProfilePicture);
 router.post('/profile-picture-upload', authenticateToken, upload.single('profile_picture'), updateProfilePictureFromUpload);
 router.delete('/profile-picture', authenticateToken, removeProfilePicture);

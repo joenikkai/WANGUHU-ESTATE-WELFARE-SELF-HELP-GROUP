@@ -79,7 +79,8 @@ const DashboardSidebar = () => {
   // Role-based extra items
   const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
   if (isTreasurer) {
-    navItems.splice(5, 0, { name: 'Monitor Community Funds', icon: ShieldCheck, path: '/community-funds' });
+    navItems.splice(5, 0, { name: 'Record Contribution', icon: PlusCircle, path: '/contribute' });
+    navItems.splice(6, 0, { name: 'Monitor Community Funds', icon: ShieldCheck, path: '/community-funds' });
   }
 
   const isActive = (path: string) => location.pathname === path;

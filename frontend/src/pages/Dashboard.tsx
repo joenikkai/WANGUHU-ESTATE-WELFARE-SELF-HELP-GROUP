@@ -339,6 +339,7 @@ function Dashboard() {
                         fetchDashboardData();
                     }}
                     token={token}
+                    user={user}
                 />
             )}
 
@@ -391,11 +392,25 @@ function Dashboard() {
     );
 }
 
-function QuickContributeModal({ onClose, onSuccess, token }: { onClose: () => void, onSuccess: () => void, token: string | null }) {
+function QuickContributeModal({ onClose, onSuccess, token, user }: { onClose: () => void, onSuccess: () => void, token: string | null, user: any }) {
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('mandatory_contribution');
     const [paymentMethod, setPaymentMethod] = useState('M-Pesa');
+    const [targetUserId, setTargetUserId] = useState(user?.id || '');
+    const [treasurerNotes, setTreasurerNotes] = useState('');
+    const [usersList, setUsersList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+
+    const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
+
+    useEffect(() => {
+        if (isTreasurer && token) {
+            axios.get(`${API_URL}/users`, {
+                headers: { Authorization: `Bearer ${token}` }
+            }).then(res => setUsersList(res.data))
+              .catch(err => console.error("Failed to fetch users", err));
+        }
+    }, [isTreasurer, token]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -405,6 +420,8 @@ function QuickContributeModal({ onClose, onSuccess, token }: { onClose: () => vo
                 amount: parseFloat(amount),
                 category,
                 payment_method: paymentMethod,
+                target_user_id: targetUserId,
+                treasurer_notes: treasurerNotes,
                 description: `${category.replace('_', ' ')} via ${paymentMethod}`
             }, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -419,7 +436,7 @@ function QuickContributeModal({ onClose, onSuccess, token }: { onClose: () => vo
 
     return (
         <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-white dark:bg-[#1A2433] rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl relative">
+            <div className="bg-white dark:bg-[#1A2433] rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <button onClick={onClose} className="absolute top-6 right-6 p-2 text-[#5A6B7A] hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
                     <X size={24} />
                 </button>
@@ -434,6 +451,22 @@ function QuickContributeModal({ onClose, onSuccess, token }: { onClose: () => vo
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {isTreasurer && (
+                        <div>
+                            <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-[0.2em] mb-2">Target Member</label>
+                            <select 
+                                value={targetUserId}
+                                onChange={(e) => setTargetUserId(e.target.value)}
+                                className="w-full px-6 py-4 bg-gray-50 dark:bg-[#0F1720] border-2 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl font-bold outline-none focus:border-[#2E7D64] dark:text-[#E2E8F0]"
+                            >
+                                <option value={user?.id}>Myself ({user?.full_name})</option>
+                                {usersList.filter(u => u.id !== user?.id).map(u => (
+                                    <option key={u.id} value={u.id}>{u.full_name} (@{u.username})</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     <div>
                         <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-[0.2em] mb-2">Amount (KES) ∑</label>
                         <input 
@@ -471,6 +504,19 @@ function QuickContributeModal({ onClose, onSuccess, token }: { onClose: () => vo
                             <option value="Cash">Cash (Physical Handover)</option>
                         </select>
                     </div>
+
+                    {isTreasurer && targetUserId !== user?.id && (
+                        <div>
+                            <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-[0.2em] mb-2">Treasurer Audit Notes</label>
+                            <textarea 
+                                placeholder="Why are you recording this for them? e.g. Received cash at meeting"
+                                value={treasurerNotes}
+                                onChange={(e) => setTreasurerNotes(e.target.value)}
+                                className="w-full px-6 py-4 bg-gray-50 dark:bg-[#0F1720] border-2 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl font-bold outline-none focus:border-[#2E7D64] dark:text-[#E2E8F0] text-sm"
+                                rows={3}
+                            />
+                        </div>
+                    )}
 
                     <button 
                         type="submit" 

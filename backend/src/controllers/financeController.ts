@@ -88,23 +88,48 @@ export const recordContribution = async (req: Request, res: Response): Promise<v
         return;
     }
 
-    const { amount, category, description, payment_method } = req.body;
-    const userId = req.user.id;
+    const { amount, category, description, payment_method, target_user_id, treasurer_notes } = req.body;
+    const actorId = req.user.id;
+    const actorRole = req.user.role;
+
+    // Determine who the contribution is for
+    // If target_user_id is provided, check if actor has permission
+    let finalTargetId = actorId;
+    let isOnBehalf = false;
+
+    if (target_user_id && target_user_id !== actorId) {
+        if (actorRole !== 'board_member' && actorRole !== 'admin') {
+            res.status(403).json({ message: 'Only treasurers or admins can record contributions for others.' });
+            return;
+        }
+        finalTargetId = target_user_id;
+        isOnBehalf = true;
+    }
 
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
+        // Generate a unique receipt number for cash payments
+        let receiptNumber = null;
+        if (payment_method === 'Cash' && isOnBehalf) {
+            receiptNumber = `RCPT-${Math.random().toString(36).substring(2, 8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+        }
+
         // 1. Record the transaction
+        const fullDescription = isOnBehalf 
+            ? `${description} (Recorded by ${req.user.role} ${actorId})${receiptNumber ? ' [Receipt: ' + receiptNumber + ']' : ''}${treasurer_notes ? ' - Notes: ' + treasurer_notes : ''}`
+            : description;
+
         const txRes = await client.query(
             `INSERT INTO transactions (user_id, amount, category, description, payment_method, status)
              VALUES ($1, $2, $3, $4, $5, 'completed') RETURNING id`,
-            [userId, amount, category, description, payment_method]
+            [finalTargetId, amount, category, fullDescription, payment_method]
         );
 
         // 2. Update communal pool if applicable
         let poolName = null;
-        if (category === 'mandatory_contribution') poolName = 'Maintenance'; // Or whatever pool handles mandatory
+        if (category === 'mandatory_contribution') poolName = 'Maintenance'; 
         if (category === 'benevolence') poolName = 'Benevolence';
 
         if (poolName) {
@@ -118,13 +143,18 @@ export const recordContribution = async (req: Request, res: Response): Promise<v
         if (category === 'personal_deposit') {
             await client.query(
                 'UPDATE users SET personal_balance = personal_balance + $1 WHERE id = $2',
-                [amount, userId]
+                [amount, finalTargetId]
             );
         }
 
         await client.query('COMMIT');
         
-        await logAudit(userId, 'CONTRIBUTION_RECORDED', 'transaction', txRes.rows[0].id, { amount, category });
+        await logAudit(actorId, isOnBehalf ? 'CONTRIBUTION_ON_BEHALF' : 'CONTRIBUTION_RECORDED', 'transaction', txRes.rows[0].id, { 
+            amount, 
+            category, 
+            target_user_id: finalTargetId,
+            treasurer_notes 
+        });
 
         res.status(201).json({ message: 'Contribution recorded successfully' });
     } catch (err) {
