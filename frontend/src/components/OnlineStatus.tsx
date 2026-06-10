@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useOnlineStatus, useOfflineSync } from "../context/SyncContext";
 import { Wifi, WifiOff, X, Activity, RefreshCw } from "lucide-react";
 
@@ -6,9 +6,32 @@ function OnlineStatus() {
     const isOnline = useOnlineStatus();
     const { queue, rollbackItem } = useOfflineSync();
     const [isOpen, setIsOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const prevStatus = useRef(isOnline);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        // Only trigger on actual status CHANGE
+        if (prevStatus.current !== isOnline) {
+            setIsVisible(true);
+            
+            // Clear existing timer
+            if (timerRef.current) clearTimeout(timerRef.current);
+
+            // Hide after 5 seconds
+            timerRef.current = setTimeout(() => {
+                setIsVisible(false);
+            }, 5000);
+
+            prevStatus.current = isOnline;
+        }
+    }, [isOnline]);
+
+    // Ensure it's visible if the popup is open
+    const shouldShowPill = isVisible || isOpen || queue.length > 0;
 
     return (
-        <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
+        <div className={`fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4 transition-all duration-500 ${shouldShowPill ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"}`}>
             {/* Detailed Popup */}
             {isOpen && (
                 <div className="bg-white dark:bg-[#1A2433] border-4 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-[2.5rem] p-8 shadow-2xl w-80 animate-in slide-in-from-bottom-4 duration-300 relative">
