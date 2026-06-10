@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getUserDashboardData, getTransactionHistory, recordContribution } from '../controllers/financeController';
+import { getUserDashboardData, getTransactionHistory, recordContribution, getCommunityFundsSummary } from '../controllers/financeController';
 import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
