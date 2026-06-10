@@ -19,11 +19,16 @@ import Contribute from "./pages/Contribute";
 import Assets from "./pages/Assets";
 import Transactions from "./pages/Transactions";
 import CommunityFunds from "./pages/CommunityFunds";
+import Legal from "./pages/Legal";
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Landing/>
+  },
+  {
+    path: '/legal/:type',
+    element: <Legal/>
   },
   {
     path: '/marketplace',
