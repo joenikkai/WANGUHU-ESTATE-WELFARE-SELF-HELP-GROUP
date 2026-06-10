@@ -1,4 +1,5 @@
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import DashboardSidebar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -276,10 +277,15 @@ function Dashboard() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                             {/* Transactions Table */}
                             <div className="bg-white dark:bg-[#1A2433] border border-[#E2E8F0] dark:border-[#2D3A4A] rounded-[2.5rem] p-8 shadow-sm">
-                                <h2 className="text-xl font-black text-[#1E2933] dark:text-[#E2E8F0] mb-6 flex items-center gap-2">
-                                    <Receipt size={20} className="text-[#2E7D64]" />
-                                    Recent Transactions
-                                </h2>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-xl font-black text-[#1E2933] dark:text-[#E2E8F0] flex items-center gap-2">
+                                        <Receipt size={20} className="text-[#2E7D64]" />
+                                        Recent Transactions
+                                    </h2>
+                                    <Link to="/transactions" className="text-[10px] font-black text-[#2E7D64] hover:underline uppercase tracking-widest">
+                                        View All Ledger ∑
+                                    </Link>
+                                </div>
                                 <div className="space-y-4">
                                     {transactions.length > 0 ? transactions.map((tx: any) => (
                                         <div key={tx.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#0F1720] rounded-2xl border border-transparent hover:border-[#2E7D64] transition-all">

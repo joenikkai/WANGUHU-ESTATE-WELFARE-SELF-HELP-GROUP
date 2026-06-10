@@ -17,6 +17,7 @@ import Marketplace from "./pages/Marketplace";
 import StockHub from "./pages/StockHub";
 import Contribute from "./pages/Contribute";
 import Assets from "./pages/Assets";
+import Transactions from "./pages/Transactions";
 
 const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: '/assets',
         element: <Assets/>
+      },
+      {
+        path: '/transactions',
+        element: <Transactions/>
       }
     ]
   },

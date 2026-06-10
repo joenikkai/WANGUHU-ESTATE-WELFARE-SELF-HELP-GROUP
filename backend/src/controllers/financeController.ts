@@ -176,17 +176,23 @@ export const getTransactionHistory = async (req: Request, res: Response): Promis
         return;
     }
 
-    const { category, user_id } = req.query;
+    const { category, user_id, limit = '14', offset = '0' } = req.query;
     const actorId = req.user.id;
     const actorRole = req.user.role;
     const isTreasurer = actorRole === 'board_member' || actorRole === 'admin';
 
     let query = `
-        SELECT t.*, p.full_name as user_full_name, u.username as user_username 
+        SELECT t.*, p.full_name as user_full_name, u.username as user_username, a.name as asset_name
         FROM transactions t
         JOIN users u ON t.user_id = u.id
         JOIN persons p ON u.person_id = p.id
+        LEFT JOIN assets a ON t.asset_id = a.id
     `;
+    let countQuery = `
+        SELECT COUNT(*) 
+        FROM transactions t
+    `;
+
     let params: any[] = [];
     let whereClauses: string[] = [];
 
@@ -208,14 +214,28 @@ export const getTransactionHistory = async (req: Request, res: Response): Promis
     }
 
     if (whereClauses.length > 0) {
-        query += ' WHERE ' + whereClauses.join(' AND ');
+        const whereString = ' WHERE ' + whereClauses.join(' AND ');
+        query += whereString;
+        countQuery += whereString;
     }
 
-    query += ' ORDER BY t.execution_date DESC';
+    query += ` ORDER BY t.execution_date DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    
+    const queryParams = [...params, limit, offset];
+    const countParams = [...params];
 
     try {
-        const result = await pool.query(query, params);
-        res.json(result.rows);
+        const [result, countResult] = await Promise.all([
+            pool.query(query, queryParams),
+            pool.query(countQuery, countParams)
+        ]);
+
+        res.json({
+            transactions: result.rows,
+            total: parseInt(countResult.rows[0].count),
+            limit: parseInt(limit as string),
+            offset: parseInt(offset as string)
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error fetching transaction history' });
