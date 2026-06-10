@@ -14,7 +14,8 @@ import {
     Share2,
     X,
     Loader2,
-    Landmark
+    Landmark,
+    ShieldCheck
 } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../utils/api';
@@ -53,12 +54,12 @@ const Contribute = () => {
 
     const fetchRecentEntries = async () => {
         try {
-            const res = await axios.get(`${API_URL}/finance/history`, {
+            const res = await axios.get(`${API_URL}/finance/transactions`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setRecentEntries(res.data.slice(0, 5));
         } catch (err) {
-            console.error("Failed to fetch history", err);
+            console.error("Failed to fetch transactions", err);
         }
     };
 
