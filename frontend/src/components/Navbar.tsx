@@ -9,8 +9,6 @@ import {
   History, 
   Settings, 
   LogOut, 
-  Sun, 
-  Moon,
   Menu,
   X,
   PlusCircle,
@@ -36,20 +34,9 @@ const DashboardSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showSensitiveInfo, setShowSensitiveInfo] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem('theme') === 'dark');
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isProfileMobileOpen, setIsProfileMobileOpen] = useState(false);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
 
   const handleToggleSensitive = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,15 +192,6 @@ const DashboardSidebar = () => {
 
         <div className="p-4 mt-auto space-y-2 border-t border-[#E2E8F0] dark:border-[#2D3A4A]">
           <button 
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="w-full flex items-center p-3 rounded-2xl text-[#5A6B7A] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-slate-800 transition-all"
-          >
-            {isDarkMode ? <Sun size={20} className={isSidebarOpen ? 'mr-4' : 'mx-auto'} /> : <Moon size={20} className={isSidebarOpen ? 'mr-4' : 'mx-auto'} />}
-            <span className={`font-bold text-sm overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>
-              {isDarkMode ? 'Solar Mode' : 'Lunar Mode'}
-            </span>
-          </button>
-          <button 
             onClick={logout}
             className="w-full flex items-center p-3 rounded-2xl text-[#C73E2D] hover:bg-red-50 dark:hover:bg-red-900/10 transition-all"
           >
@@ -245,10 +223,6 @@ const DashboardSidebar = () => {
         >
             <User size={22} />
             <span className="text-[9px] font-black uppercase tracking-widest">Profile</span>
-        </button>
-        <button onClick={() => setIsDarkMode(!isDarkMode)} className="flex flex-col items-center justify-center gap-1.5 text-[#5A6B7A] dark:text-[#94A3B8]">
-          {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
-          <span className="text-[9px] font-black uppercase tracking-widest">{isDarkMode ? 'Solar' : 'Lunar'}</span>
         </button>
       </div>
 
