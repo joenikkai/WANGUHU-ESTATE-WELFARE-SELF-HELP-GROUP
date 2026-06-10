@@ -18,6 +18,7 @@ import StockHub from "./pages/StockHub";
 import Contribute from "./pages/Contribute";
 import Assets from "./pages/Assets";
 import Transactions from "./pages/Transactions";
+import CommunityFunds from "./pages/CommunityFunds";
 
 const router = createBrowserRouter([
   {
@@ -78,6 +79,10 @@ const router = createBrowserRouter([
       {
         path: '/transactions',
         element: <Transactions/>
+      },
+      {
+        path: '/community-funds',
+        element: <CommunityFunds/>
       }
     ]
   },

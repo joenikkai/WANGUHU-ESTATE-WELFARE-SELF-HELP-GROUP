@@ -5,6 +5,7 @@ import { authenticateToken } from '../middleware/authMiddleware';
 const router = Router();
 
 router.get('/dashboard', authenticateToken, getUserDashboardData);
+router.get('/community-funds', authenticateToken, getCommunityFundsSummary);
 router.get('/transactions', authenticateToken, getTransactionHistory);
 router.post('/contribute', authenticateToken, recordContribution);
 

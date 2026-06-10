@@ -71,16 +71,11 @@ const DashboardSidebar = () => {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/my-dashboard' },
     { name: 'Contribution Hub', icon: PlusCircle, path: '/contribute' },
     { name: 'Transactions', icon: Receipt, path: '/transactions' },
+    { name: 'Community Funds', icon: ShieldCheck, path: '/community-funds' },
     { name: 'Assets', icon: Building2, path: '/assets' },
     { name: 'Stocks', icon: TrendingUp, path: '/stocks' },
     { name: 'Help Desk', icon: HelpCircle, path: '/help-desk' },
   ];
-
-  // Role-based extra items
-  const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
-  if (isTreasurer) {
-    navItems.splice(6, 0, { name: 'Monitor Community Funds', icon: ShieldCheck, path: '/community-funds' });
-  }
 
   const isActive = (path: string) => location.pathname === path;
 

@@ -241,3 +241,42 @@ export const getTransactionHistory = async (req: Request, res: Response): Promis
         res.status(500).json({ message: 'Server error fetching transaction history' });
     }
 };
+
+export const getCommunityFundsSummary = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const client = await pool.connect();
+        try {
+            // 1. Fetch all communal pools
+            const poolsRes = await client.query('SELECT name, balance FROM communal_pools ORDER BY name ASC');
+            
+            // 2. Fetch communal assets summary
+            const assetsRes = await client.query(`
+                SELECT 
+                    id, name, type, value, target_amount,
+                    COALESCE((SELECT SUM(amount) FROM transactions WHERE asset_id = assets.id), 0) as total_contributed
+                FROM assets 
+                WHERE is_communal = true 
+                ORDER BY name ASC
+            `);
+
+            // 3. Fetch latest 5 group-wide transactions (anonymous/summary style)
+            const recentTxRes = await client.query(`
+                SELECT category, amount, execution_date as date, payment_method
+                FROM transactions 
+                WHERE category IN ('mandatory_contribution', 'benevolence', 'asset_purchase')
+                ORDER BY execution_date DESC LIMIT 5
+            `);
+
+            res.json({
+                pools: poolsRes.rows,
+                assets: assetsRes.rows,
+                recentActivity: recentTxRes.rows
+            });
+        } finally {
+            client.release();
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error fetching community funds summary' });
+    }
+};
