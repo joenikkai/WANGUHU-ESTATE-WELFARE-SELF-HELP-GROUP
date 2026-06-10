@@ -501,7 +501,7 @@ function QuickContributeModal({ onClose, onSuccess, token, user }: { onClose: ()
                         >
                             <option value="M-Pesa">M-Pesa Community Pay</option>
                             <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="Cash">Cash (Physical Handover)</option>
+                            {isTreasurer && <option value="Cash">Cash (Physical Handover)</option>}
                         </select>
                     </div>
 

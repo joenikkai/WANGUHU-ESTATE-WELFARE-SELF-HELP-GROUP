@@ -172,16 +172,42 @@ export const getTransactionHistory = async (req: Request, res: Response): Promis
         return;
     }
 
-    const { category } = req.query;
-    let query = 'SELECT * FROM transactions WHERE user_id = $1';
-    let params: any[] = [req.user.id];
+    const { category, user_id } = req.query;
+    const actorId = req.user.id;
+    const actorRole = req.user.role;
+    const isTreasurer = actorRole === 'board_member' || actorRole === 'admin';
+
+    let query = `
+        SELECT t.*, p.full_name as user_full_name, u.username as user_username 
+        FROM transactions t
+        JOIN users u ON t.user_id = u.id
+        JOIN persons p ON u.person_id = p.id
+    `;
+    let params: any[] = [];
+    let whereClauses: string[] = [];
+
+    // Authorization logic for filtering by user_id
+    if (isTreasurer) {
+        if (user_id) {
+            whereClauses.push(`t.user_id = $${params.length + 1}`);
+            params.push(user_id);
+        }
+    } else {
+        // Members can only see their own
+        whereClauses.push(`t.user_id = $${params.length + 1}`);
+        params.push(actorId);
+    }
 
     if (category) {
-        query += ' AND category = $2';
+        whereClauses.push(`t.category = $${params.length + 1}`);
         params.push(category);
     }
 
-    query += ' ORDER BY execution_date DESC';
+    if (whereClauses.length > 0) {
+        query += ' WHERE ' + whereClauses.join(' AND ');
+    }
+
+    query += ' ORDER BY t.execution_date DESC';
 
     try {
         const result = await pool.query(query, params);
