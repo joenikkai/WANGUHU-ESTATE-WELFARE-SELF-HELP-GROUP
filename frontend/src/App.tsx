@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import StockHub from "./pages/StockHub";
 import Contribute from "./pages/Contribute";
+import Assets from "./pages/Assets";
 
 const router = createBrowserRouter([
   {
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
       {
         path: '/contribute',
         element: <Contribute/>
+      },
+      {
+        path: '/assets',
+        element: <Assets/>
       }
     ]
   },

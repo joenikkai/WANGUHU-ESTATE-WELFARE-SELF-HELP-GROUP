@@ -22,12 +22,16 @@ export const getUserDashboardData = async (req: Request, res: Response): Promise
                 [userId]
             );
 
-            // 2. Fetch user's assets
+            // 2. Fetch user's assets with contribution-based visibility
             const assetsRes = await client.query(
-                `SELECT id, name, type, value, is_communal 
-                 FROM assets 
-                 WHERE owner_id = $1 OR is_communal = true`,
-                [userId]
+                `SELECT a.* 
+                 FROM assets a
+                 WHERE a.owner_id = $1 
+                    OR (a.is_communal = true AND (
+                        EXISTS (SELECT 1 FROM transactions WHERE user_id = $1 AND asset_id = a.id)
+                        OR $2 = true
+                    ))`,
+                [userId, req.user.role === 'board_member' || req.user.role === 'admin']
             );
 
             // 3. Fetch pool totals (if treasurer)
@@ -88,7 +92,7 @@ export const recordContribution = async (req: Request, res: Response): Promise<v
         return;
     }
 
-    const { amount, category, description, payment_method, target_user_id, treasurer_notes } = req.body;
+    const { amount, category, description, payment_method, target_user_id, treasurer_notes, asset_id } = req.body;
     const actorId = req.user.id;
     const actorRole = req.user.role;
 
@@ -122,9 +126,9 @@ export const recordContribution = async (req: Request, res: Response): Promise<v
             : description;
 
         const txRes = await client.query(
-            `INSERT INTO transactions (user_id, amount, category, description, payment_method, status)
-             VALUES ($1, $2, $3, $4, $5, 'completed') RETURNING id`,
-            [finalTargetId, amount, category, fullDescription, payment_method]
+            `INSERT INTO transactions (user_id, amount, category, description, payment_method, status, asset_id)
+             VALUES ($1, $2, $3, $4, $5, 'completed', $6) RETURNING id`,
+            [finalTargetId, amount, category, fullDescription, payment_method, asset_id]
         );
 
         // 2. Update communal pool if applicable

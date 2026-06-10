@@ -12,6 +12,7 @@ import marketplaceRoutes from './routes/marketplaceRoutes';
 import passkeyRoutes from './routes/passkeyRoutes';
 import financeRoutes from './routes/financeRoutes';
 import externalApiRoutes from './routes/externalApiRoutes';
+import assetRoutes from './routes/assetRoutes';
 import { mergeDuplicateImages, cleanupOrphanedImages } from './utils/imageMaintenance';
 
 const app = express();
@@ -55,6 +56,7 @@ app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/passkeys', passkeyRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/external', externalApiRoutes);
+app.use('/api/assets', assetRoutes);
 
 app.get('/api/greeting', async (req, res) => {
   try {

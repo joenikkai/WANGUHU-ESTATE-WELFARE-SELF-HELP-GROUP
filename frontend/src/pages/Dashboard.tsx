@@ -397,6 +397,8 @@ function QuickContributeModal({ onClose, onSuccess, token, user }: { onClose: ()
     const [category, setCategory] = useState('mandatory_contribution');
     const [paymentMethod, setPaymentMethod] = useState('M-Pesa');
     const [targetUserId, setTargetUserId] = useState(user?.id || '');
+    const [assetId, setAssetId] = useState('');
+    const [assetsList, setAssetsList] = useState<any[]>([]);
     const [treasurerNotes, setTreasurerNotes] = useState('');
     const [usersList, setUsersList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -404,11 +406,17 @@ function QuickContributeModal({ onClose, onSuccess, token, user }: { onClose: ()
     const isTreasurer = user?.role === 'board_member' || user?.role === 'admin';
 
     useEffect(() => {
-        if (isTreasurer && token) {
-            axios.get(`${API_URL}/users`, {
+        if (token) {
+            if (isTreasurer) {
+                axios.get(`${API_URL}/users`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }).then(res => setUsersList(res.data))
+                  .catch(err => console.error("Failed to fetch users", err));
+            }
+            axios.get(`${API_URL}/assets`, {
                 headers: { Authorization: `Bearer ${token}` }
-            }).then(res => setUsersList(res.data))
-              .catch(err => console.error("Failed to fetch users", err));
+            }).then(res => setAssetsList(res.data))
+              .catch(err => console.error("Failed to fetch assets", err));
         }
     }, [isTreasurer, token]);
 
@@ -421,6 +429,7 @@ function QuickContributeModal({ onClose, onSuccess, token, user }: { onClose: ()
                 category,
                 payment_method: paymentMethod,
                 target_user_id: targetUserId,
+                asset_id: assetId || null,
                 treasurer_notes: treasurerNotes,
                 description: `${category.replace('_', ' ')} via ${paymentMethod}`
             }, {
@@ -489,8 +498,26 @@ function QuickContributeModal({ onClose, onSuccess, token, user }: { onClose: ()
                             <option value="mandatory_contribution">Mandatory Contribution</option>
                             <option value="benevolence">Benevolence Fund</option>
                             <option value="personal_deposit">Personal Savings Deposit</option>
+                            <option value="asset_purchase">Asset Share Units</option>
                         </select>
                     </div>
+
+                    {category === 'asset_purchase' && (
+                        <div>
+                            <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-[0.2em] mb-2">Target Asset</label>
+                            <select 
+                                value={assetId}
+                                onChange={(e) => setAssetId(e.target.value)}
+                                className="w-full px-6 py-4 bg-gray-50 dark:bg-[#0F1720] border-2 border-[#E2E8F0] dark:border-[#2D3A4A] rounded-2xl font-bold outline-none focus:border-[#2E7D64] dark:text-[#E2E8F0]"
+                                required
+                            >
+                                <option value="">Select an Asset...</option>
+                                {assetsList.filter(a => a.is_communal).map(a => (
+                                    <option key={a.id} value={a.id}>{a.name} (Goal: KES {parseFloat(a.target_amount).toLocaleString()})</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     <div>
                         <label className="block text-[10px] font-black text-[#5A6B7A] uppercase tracking-[0.2em] mb-2">Payment Method</label>
