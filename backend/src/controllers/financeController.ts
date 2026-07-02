@@ -125,30 +125,36 @@ export const recordContribution = async (req: Request, res: Response): Promise<v
             ? `${description} (Recorded by ${req.user.role} ${actorId})${receiptNumber ? ' [Receipt: ' + receiptNumber + ']' : ''}${treasurer_notes ? ' - Notes: ' + treasurer_notes : ''}`
             : description;
 
+        const isPending = ['Cash', 'Cheque'].includes(payment_method);
+        const status = isPending ? 'pending' : 'completed';
+        const verified = !isPending;
+
         const txRes = await client.query(
-            `INSERT INTO transactions (user_id, amount, category, description, payment_method, status, asset_id)
-             VALUES ($1, $2, $3, $4, $5, 'completed', $6) RETURNING id`,
-            [finalTargetId, amount, category, fullDescription, payment_method, asset_id]
+            `INSERT INTO transactions (user_id, amount, category, description, payment_method, status, asset_id, verified)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+            [finalTargetId, amount, category, fullDescription, payment_method, status, asset_id, verified]
         );
 
         // 2. Update communal pool if applicable
-        let poolName = null;
-        if (category === 'mandatory_contribution') poolName = 'Maintenance'; 
-        if (category === 'benevolence') poolName = 'Benevolence';
+        if (!isPending) {
+            let poolName = null;
+            if (category === 'mandatory_contribution') poolName = 'Maintenance'; 
+            if (category === 'benevolence') poolName = 'Benevolence';
 
-        if (poolName) {
-            await client.query(
-                'UPDATE communal_pools SET balance = balance + $1, updated_at = CURRENT_TIMESTAMP WHERE name = $2',
-                [amount, poolName]
-            );
-        }
+            if (poolName) {
+                await client.query(
+                    'UPDATE communal_pools SET balance = balance + $1, updated_at = CURRENT_TIMESTAMP WHERE name = $2',
+                    [amount, poolName]
+                );
+            }
 
-        // 3. Update personal balance if it's a deposit
-        if (category === 'personal_deposit') {
-            await client.query(
-                'UPDATE users SET personal_balance = personal_balance + $1 WHERE id = $2',
-                [amount, finalTargetId]
-            );
+            // 3. Update personal balance if it's a deposit
+            if (category === 'personal_deposit') {
+                await client.query(
+                    'UPDATE users SET personal_balance = personal_balance + $1 WHERE id = $2',
+                    [amount, finalTargetId]
+                );
+            }
         }
 
         await client.query('COMMIT');
@@ -278,5 +284,76 @@ export const getCommunityFundsSummary = async (req: Request, res: Response): Pro
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error fetching community funds summary' });
+    }
+};
+
+export const verifyTransaction = async (req: Request, res: Response): Promise<void> => {
+    if (!req.user || (req.user.role !== 'board_member' && req.user.role !== 'admin')) {
+        res.status(403).json({ message: 'Only treasurers can verify transactions' });
+        return;
+    }
+
+    const { transactionId } = req.params;
+    const actorId = req.user.id;
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // 1. Fetch transaction
+        const txRes = await client.query('SELECT * FROM transactions WHERE id = ', [transactionId]);
+        if (txRes.rows.length === 0) {
+            res.status(404).json({ message: 'Transaction not found' });
+            return;
+        }
+
+        const tx = txRes.rows[0];
+        if (tx.status === 'completed') {
+            res.status(400).json({ message: 'Transaction is already completed' });
+            return;
+        }
+
+        // 2. Update status to completed and verified
+        await client.query(
+            "UPDATE transactions SET status = 'completed', verified = true, execution_date = CURRENT_TIMESTAMP WHERE id = ",
+            [transactionId]
+        );
+
+        // 3. Update communal pool/balances
+        let poolName = null;
+        if (tx.category === 'mandatory_contribution') poolName = 'Maintenance'; 
+        if (tx.category === 'benevolence') poolName = 'Benevolence';
+
+        if (poolName) {
+            await client.query(
+                'UPDATE communal_pools SET balance = balance + , updated_at = CURRENT_TIMESTAMP WHERE name = ',
+                [tx.amount, poolName]
+            );
+        }
+
+        if (tx.category === 'personal_deposit') {
+            await client.query(
+                'UPDATE users SET personal_balance = personal_balance +  WHERE id = ',
+                [tx.amount, tx.user_id]
+            );
+        }
+
+        await client.query('COMMIT');
+
+        await logAudit(
+            actorId,
+            'VERIFY_TRANSACTION',
+            'transaction',
+            ((Array.isArray(transactionId))?transactionId[0]:transactionId),
+            { amount: tx.amount, category: tx.category, user_id: tx.user_id }
+        );
+
+        res.json({ message: 'Transaction verified and balances updated successfully' });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err);
+        res.status(500).json({ message: 'Server error verifying transaction' });
+    } finally {
+        client.release();
     }
 };

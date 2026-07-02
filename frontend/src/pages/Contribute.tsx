@@ -31,6 +31,7 @@ const Contribute = () => {
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('mandatory_contribution');
     const [paymentMethod, setPaymentMethod] = useState('M-Pesa');
+    const [paymentRef, setPaymentRef] = useState('');
     const [targetUserId, setTargetUserId] = useState(user?.id || '');
     const [assetId, setAssetId] = useState('');
     const [assetsList, setAssetsList] = useState<any[]>([]);
